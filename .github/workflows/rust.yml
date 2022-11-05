@@ -1,9 +1,6 @@
 name: Rust
 
-on:
-  push:
-    tags:
-      - "*"
+on: workflow_dispatch
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,6 +12,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        lfs: true
     - name: Build
       run: cargo build --release
     - name: Release
