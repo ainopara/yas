@@ -635,6 +635,12 @@ impl YasScanner {
         let mut shot = self.capture(&rect)?;
         let mut locks: Vec<bool> = Vec::new();
         let info = &self.info;
+
+        if self.config.mark {
+            self.create_dumps_folder()?;
+            shot.save(&format!("dumps/lock_{}_raw.png", self.scrolled_rows))?;
+        }
+
         for row in start_row..self.row {
             let y =
                 (info.top_margin + self.offset_y + info.art_lock_y + info.art_shift_y * row as f64)
