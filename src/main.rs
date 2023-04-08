@@ -236,7 +236,7 @@ fn run_ws(matches: ArgMatches) -> Result<()> {
     let verbose = matches.get_flag("verbose");
     let cfg_ntf = ConfigNotifyData::packet(&matches)?;
 
-    let addr = "127.0.0.1:2022";
+    let addr = "0.0.0.0:2022";
     let server = TcpListener::bind(addr)?;
 
     info!("websocket server started: ws://{}", addr);
