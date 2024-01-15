@@ -1,4 +1,5 @@
 use log::error;
+use log::warn;
 use regex::Regex;
 use std::hash::{Hash, Hasher};
 use strum_macros::Display;
@@ -783,7 +784,7 @@ impl ArtifactSlotKey {
 
 impl CharacterKey {
     pub fn from_zh_cn(s: &str) -> Option<CharacterKey> {
-        match s {
+        let key = match s {
             "神里绫华" => Some(CharacterKey::KamisatoAyaka),
             "琴" => Some(CharacterKey::Jean),
             "旅行者" => Some(CharacterKey::Traveler),
@@ -864,6 +865,12 @@ impl CharacterKey {
             "嘉明" => Some(CharacterKey::Gaming),
             "闲云" => Some(CharacterKey::Liuyun),
             _ => None,
+        };
+
+        if key == None && !s.is_empty() {
+            warn!("Unknown Character Key: {}", s);
         }
+
+        key
     }
 }
