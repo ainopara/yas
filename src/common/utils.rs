@@ -1,18 +1,18 @@
 use anyhow::Result;
 use serde::Serialize;
-
+use std::ffi::OsStr;
 use std::fs;
 use std::io::{stdin, Write};
-
-
+use std::iter::once;
+use std::mem::transmute;
 #[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
 use std::process;
-
+use std::ptr::null_mut;
 use std::{thread, time};
 
-use log::{error};
+use log::{error, info, warn};
 #[cfg(windows)]
 use winapi::shared::windef::{HWND, POINT as WinPoint, RECT as WinRect};
 #[cfg(windows)]
@@ -21,7 +21,7 @@ use winapi::um::winuser::{
     SetProcessDPIAware, ShowWindow, SW_RESTORE, VK_F12, VK_RBUTTON,
 };
 
-
+use crate::common::PixelRect;
 #[cfg(windows)]
 use winapi::shared::minwindef::BOOL;
 #[cfg(windows)]

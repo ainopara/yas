@@ -4,6 +4,7 @@ use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
 use std::path::Path;
+use std::time::SystemTime;
 
 use clap::{ArgMatches};
 use env_logger::Builder;
@@ -17,6 +18,11 @@ use yas::ws::server::run_ws;
 
 #[cfg(windows)]
 use yas::capture::capture_absolute_image;
+use yas::expo::genmo::GenmoFormat;
+use yas::expo::good::GoodFormat;
+use yas::expo::mona::MonaFormat;
+use yas::info::info::ScanInfo;
+use yas::scanner::config::YasScannerConfig;
 #[cfg(windows)]
 use yas::scanner::yas_scanner::YasScanner;
 
@@ -127,7 +133,7 @@ fn do_lock(_matches: ArgMatches, _actions: Vec<LockAction>) -> Result<()> {
 }
 
 #[cfg(windows)]
-fn get_info(matches: &ArgMatches) -> Result<info::ScanInfo> {
+fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
     utils::set_dpi_awareness();
 
     let window_name: String = matches.get_one::<String>("window").unwrap().to_string();
@@ -157,14 +163,14 @@ fn get_info(matches: &ArgMatches) -> Result<info::ScanInfo> {
         rect.left, rect.top, rect.width, rect.height
     );
 
-    let info: info::ScanInfo;
+    let info: ScanInfo;
     if rect.height * 16 == rect.width * 9 {
         info =
-            info::ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
+            ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
     } else if rect.height * 8 == rect.width * 5 {
-        info = info::ScanInfo::from_8_5(rect.width as u32, rect.height as u32, rect.left, rect.top);
+        info = ScanInfo::from_8_5(rect.width as u32, rect.height as u32, rect.left, rect.top);
     } else if rect.height * 4 == rect.width * 3 {
-        info = info::ScanInfo::from_4_3(rect.width as u32, rect.height as u32, rect.left, rect.top);
+        info = ScanInfo::from_4_3(rect.width as u32, rect.height as u32, rect.left, rect.top);
     } else {
         return Err(anyhow!("不支持的分辨率"));
     }
