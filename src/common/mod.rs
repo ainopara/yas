@@ -9,6 +9,7 @@ use image::{GrayImage, ImageBuffer, ImageResult};
 
 pub mod color;
 pub mod utils;
+pub mod cli;
 
 use color::Color;
 
