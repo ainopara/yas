@@ -1,6 +1,6 @@
 use crate::{
     artifact::internal_artifact::InternalArtifact, expo::good::GoodFormat,
-    scanner::yas_scanner::YasScannerConfig,
+    scanner::config::YasScannerConfig,
 };
 use anyhow::Result;
 use clap::ArgMatches;

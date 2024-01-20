@@ -4,12 +4,16 @@ use anyhow::{anyhow, Result};
 use std::mem::size_of;
 use std::ptr::null_mut;
 
+#[cfg(windows)]
 use winapi::ctypes::c_void;
+#[cfg(windows)]
 use winapi::shared::windef::{HBITMAP, HDC};
+#[cfg(windows)]
 use winapi::um::wingdi::{
     BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteObject, GetDIBits, GetObjectW,
     SelectObject, BITMAP, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, SRCCOPY,
 };
+#[cfg(windows)]
 use winapi::um::winuser::{GetDC, ReleaseDC};
 
 use image::ImageBuffer;

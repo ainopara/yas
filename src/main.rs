@@ -10,15 +10,18 @@ use tungstenite::WebSocket;
 use yas::artifact::internal_artifact::InternalArtifact;
 use yas::lock::LockAction;
 use yas::ws::packet::{ConfigNotifyData, LockRspData, ScanRspData};
-
-use yas::capture::capture_absolute_image;
+use yas::ws::packet::Packet;
 use yas::common::utils;
 use yas::expo::genmo::GenmoFormat;
 use yas::expo::good::GoodFormat;
 use yas::expo::mona::MonaFormat;
 use yas::info::info;
-use yas::scanner::yas_scanner::{YasScanner, YasScannerConfig};
-use yas::ws::packet::Packet;
+
+#[cfg(windows)]
+use yas::capture::capture_absolute_image;
+#[cfg(windows)]
+use yas::scanner::yas_scanner::YasScanner;
+use yas::scanner::config::YasScannerConfig;
 
 use clap::{arg, value_parser, ArgMatches, Command};
 use env_logger::Builder;
@@ -127,6 +130,7 @@ fn get_cli() -> Command {
         )
 }
 
+#[cfg(windows)]
 fn get_info(matches: &ArgMatches) -> Result<info::ScanInfo> {
     utils::set_dpi_awareness();
 
@@ -172,6 +176,7 @@ fn get_info(matches: &ArgMatches) -> Result<info::ScanInfo> {
     Ok(info)
 }
 
+#[cfg(windows)]
 fn do_scan(matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
     let config = YasScannerConfig::from_match(&matches)?;
     let info = get_info(&matches)?;
@@ -197,12 +202,23 @@ fn do_scan(matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
     Ok(results)
 }
 
+#[cfg(not(windows))]
+fn do_scan(matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
+    Ok(Vec::new())
+}
+
+#[cfg(windows)]
 fn do_lock(matches: ArgMatches, actions: Vec<LockAction>) -> Result<()> {
     let config = YasScannerConfig::from_match(&matches)?;
     let info = get_info(&matches)?;
 
     let mut scanner = YasScanner::new(info.clone(), config)?;
     scanner.lock(actions)
+}
+
+#[cfg(not(windows))]
+fn do_lock(matches: ArgMatches, actions: Vec<LockAction>) -> Result<()> {
+    Ok(())
 }
 
 fn run_once(matches: ArgMatches) -> Result<()> {

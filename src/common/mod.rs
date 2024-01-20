@@ -1,3 +1,4 @@
+#[cfg(windows)]
 use crate::capture;
 use crate::inference::pre_process::{pre_process, raw_to_img, to_gray, uint8_raw_to_img};
 use crate::info::info::ScanInfo;
@@ -61,6 +62,7 @@ impl PixelRectBound {
             height: self.bottom - self.top,
         }
     }
+    #[cfg(windows)]
     pub fn capture_absolute(&self) -> Result<RawImage> {
         let w = self.right - self.left;
         let h = self.bottom - self.top;
@@ -76,6 +78,7 @@ impl PixelRectBound {
         Ok(raw_after_pp)
     }
 
+    #[cfg(windows)]
     pub fn capture_relative(&self, info: &ScanInfo) -> Result<RawImage> {
         let w = self.right - self.left;
         let h = self.bottom - self.top;
@@ -94,6 +97,7 @@ impl PixelRectBound {
         Ok(raw_after_pp)
     }
 
+    #[cfg(windows)]
     pub fn capture_relative_image(&self, info: &ScanInfo) -> Result<RgbImage> {
         let w = self.right - self.left;
         let h = self.bottom - self.top;

@@ -5,6 +5,7 @@ use std::fs;
 use std::io::{stdin, Write};
 use std::iter::once;
 use std::mem::transmute;
+#[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
 use std::process;
@@ -12,26 +13,34 @@ use std::ptr::null_mut;
 use std::{thread, time};
 
 use log::{error, info, warn};
+#[cfg(windows)]
 use winapi::shared::windef::{HWND, POINT as WinPoint, RECT as WinRect};
+#[cfg(windows)]
 use winapi::um::winuser::{
     ClientToScreen, FindWindowW, GetAsyncKeyState, GetClientRect, SetForegroundWindow,
     SetProcessDPIAware, ShowWindow, SW_RESTORE, VK_F12, VK_RBUTTON,
 };
 
 use crate::common::PixelRect;
+#[cfg(windows)]
 use winapi::shared::minwindef::BOOL;
+#[cfg(windows)]
 use winapi::um::libloaderapi::{FreeLibrary, GetProcAddress, LoadLibraryA};
+#[cfg(windows)]
 use winapi::um::securitybaseapi::{AllocateAndInitializeSid, CheckTokenMembership, FreeSid};
+#[cfg(windows)]
 use winapi::um::winnt::{
     DOMAIN_ALIAS_RID_ADMINS, PSID, SECURITY_BUILTIN_DOMAIN_RID, SECURITY_NT_AUTHORITY,
     SID_IDENTIFIER_AUTHORITY,
 };
 
+#[cfg(windows)]
 pub fn encode_wide(s: String) -> Vec<u16> {
     let wide: Vec<u16> = OsStr::new(&s).encode_wide().chain(once(0)).collect();
     wide
 }
 
+#[cfg(windows)]
 fn find_window(p_class_name: *const u16, p_window_name: *const u16) -> Result<HWND, String> {
     let result: HWND = unsafe { FindWindowW(p_class_name, p_window_name) };
     if result.is_null() {
@@ -41,17 +50,20 @@ fn find_window(p_class_name: *const u16, p_window_name: *const u16) -> Result<HW
     }
 }
 
+#[cfg(windows)]
 pub fn find_ys_window() -> Result<HWND, String> {
     let class_name = encode_wide(String::from("UnityWndClass"));
     let window_name = encode_wide(String::from("原神"));
     find_window(class_name.as_ptr(), window_name.as_ptr())
 }
 
+#[cfg(windows)]
 pub fn find_window_by_name(name: &str) -> Result<HWND, String> {
     let window_name = encode_wide(String::from(name));
     find_window(null_mut(), window_name.as_ptr())
 }
 
+#[cfg(windows)]
 unsafe fn get_client_rect_unsafe(hwnd: HWND) -> Result<PixelRect> {
     let mut rect: WinRect = WinRect {
         left: 0,
@@ -76,6 +88,7 @@ unsafe fn get_client_rect_unsafe(hwnd: HWND) -> Result<PixelRect> {
     })
 }
 
+#[cfg(windows)]
 pub fn get_client_rect(hwnd: HWND) -> Result<PixelRect> {
     unsafe { get_client_rect_unsafe(hwnd) }
 }
@@ -97,6 +110,7 @@ pub fn error_and_quit(msg: &str) -> ! {
     process::exit(0);
 }
 
+#[cfg(windows)]
 unsafe fn is_admin_unsafe() -> bool {
     let mut authority: SID_IDENTIFIER_AUTHORITY = SID_IDENTIFIER_AUTHORITY {
         Value: SECURITY_NT_AUTHORITY,
@@ -126,10 +140,17 @@ unsafe fn is_admin_unsafe() -> bool {
     b != 0
 }
 
+#[cfg(windows)]
 pub fn is_admin() -> bool {
     unsafe { is_admin_unsafe() }
 }
 
+#[cfg(not(windows))]
+pub fn is_admin() -> bool {
+    true
+}
+
+#[cfg(windows)]
 pub fn is_rmb_down() -> bool {
     unsafe {
         let state = GetAsyncKeyState(VK_RBUTTON);
@@ -141,6 +162,7 @@ pub fn is_rmb_down() -> bool {
     }
 }
 
+#[cfg(windows)]
 pub fn is_f12_down() -> bool {
     unsafe {
         let state = GetAsyncKeyState(VK_F12);
@@ -158,6 +180,7 @@ pub fn encode_lpcstr(s: &str) -> Vec<i8> {
     arr
 }
 
+#[cfg(windows)]
 pub fn set_dpi_awareness() {
     // let os = os_info::get();
 
@@ -202,6 +225,7 @@ pub fn set_dpi_awareness() {
     // }
 }
 
+#[cfg(windows)]
 pub fn show_window_and_set_foreground(hwnd: HWND) {
     unsafe {
         ShowWindow(hwnd, SW_RESTORE);
