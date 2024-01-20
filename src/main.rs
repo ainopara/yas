@@ -137,10 +137,10 @@ fn do_lock(_matches: ArgMatches, _actions: Vec<LockAction>) -> Result<()> {
 fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
     utils::set_dpi_awareness();
 
+    let game_type = GameType::from_string(matches.get_one::<String>("game").unwrap().to_string());
     let window_name: String = matches.get_one::<String>("window").unwrap().to_string();
-
+    
     let hwnd = if window_name.is_empty() {
-        let game_type = GameType::from_string(matches.get_one::<String>("game").unwrap().to_string());
         utils::find_game_window(game_type)
     } else {
         utils::find_window_by_name(&window_name)

@@ -1,4 +1,4 @@
-use crate::common::{PixelRect, PixelRectBound};
+use crate::common::PixelRectBound;
 use crate::info::window_info_starrail::{
     WINDOW_43_18, WINDOW_16_9, WINDOW_8_5, WINDOW_4_3, WINDOW_7_3, WINDOW_MAC_8_5
 };
@@ -8,12 +8,11 @@ pub struct ScanInfoStarRail {
     // pub panel_height: u32,
     // pub panel_width: u32,
 
-    // pub panel_position: PixelRectBound,
+    pub panel_position: PixelRectBound,
     pub title_position: PixelRectBound,
     pub main_stat_name_position: PixelRectBound,
     pub main_stat_value_position: PixelRectBound,
     pub level_position: PixelRectBound,
-    pub panel_position: PixelRectBound,
 
     pub sub_stat1_name_pos: PixelRectBound,
     pub sub_stat1_value_pos: PixelRectBound,

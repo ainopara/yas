@@ -6,90 +6,29 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::SystemTime;
 
-use clap::ArgMatches;
 use enigo::*;
 use image::{GenericImageView, RgbImage};
 use log::{error, info, warn};
 use tract_onnx::prelude::tract_itertools::Itertools;
 
-use crate::artifact::internal_relic::{
-    RelicSetName, RelicSlot, RelicStat, InternalRelic,
-};
+use crate::artifact::internal_relic::InternalRelic;
 use crate::capture::{self};
-use crate::common::character_name::CHARACTER_NAMES;
+
 use crate::common::color::Color;
 #[cfg(target_os = "macos")]
 use crate::common::utils::get_pid_and_ui;
 use crate::common::{utils, PixelRect, PixelRectBound};
 use crate::inference::inference::CRNNModel;
-use crate::inference::pre_process::{pre_process, to_gray, ImageConvExt};
+use crate::inference::pre_process::{pre_process, to_gray};
 use crate::info::info_starrail::ScanInfoStarRail;
 
 // Playcover only, wine should not need this.
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 use crate::common::utils::mac_scroll;
-
-pub struct YasScannerConfig {
-    max_row: u32,
-    capture_only: bool,
-    min_star: u32,
-    min_level: u32,
-    max_wait_switch_relic: u32,
-    scroll_stop: u32,
-    number: u32,
-    verbose: bool,
-    dump_mode: bool,
-    cloud_wait_switch_relic: u32,
-    // offset_x: i32,
-    // offset_y: i32,
-}
-
-impl YasScannerConfig {
-    pub fn from_match(matches: &ArgMatches) -> YasScannerConfig {
-        YasScannerConfig {
-            max_row: matches
-                .value_of("max-row")
-                .unwrap_or("1000")
-                .parse::<u32>()
-                .unwrap(),
-            capture_only: matches.is_present("capture-only"),
-            dump_mode: matches.is_present("dump"),
-            min_star: matches
-                .value_of("min-star")
-                .unwrap_or("4")
-                .parse::<u32>()
-                .unwrap(),
-            min_level: matches
-                .value_of("min-level")
-                .unwrap_or("0")
-                .parse::<u32>()
-                .unwrap(),
-            max_wait_switch_relic: matches
-                .value_of("max-wait-switch-relic")
-                .unwrap_or("800")
-                .parse::<u32>()
-                .unwrap(),
-            scroll_stop: matches
-                .value_of("scroll-stop")
-                .unwrap_or("80")
-                .parse::<u32>()
-                .unwrap(),
-            number: matches
-                .value_of("number")
-                .unwrap_or("0")
-                .parse::<u32>()
-                .unwrap(),
-            verbose: matches.is_present("verbose"),
-            cloud_wait_switch_relic: matches
-                .value_of("cloud-wait-switch-relic")
-                .unwrap_or("300")
-                .parse::<u32>()
-                .unwrap(),
-            // offset_x: matches.value_of("offset-x").unwrap_or("0").parse::<i32>().unwrap(),
-            // offset_y: matches.value_of("offset-y").unwrap_or("0").parse::<i32>().unwrap(),
-        }
-    }
-}
+use crate::scanner::config::YasScannerConfig;
+use crate::scanner::config::GameType;
+use crate::scanner::result::YasScanResult;
+use anyhow::Result;
 
 pub struct YasScanner {
     model: CRNNModel,
@@ -123,76 +62,6 @@ enum ScrollResult {
     Skip,
 }
 
-#[derive(Debug)]
-pub struct YasScanResult {
-    name: String,
-    main_stat_name: String,
-    main_stat_value: String,
-    sub_stat_1: String,
-    sub_stat_2: String,
-    sub_stat_3: String,
-    sub_stat_4: String,
-    level: String,
-    equip: String,
-    star: u32,
-}
-
-impl YasScanResult {
-    pub fn to_internal_relic(&self) -> Option<InternalRelic> {
-        let set_name = RelicSetName::from_zh_cn(&self.name)?;
-        let slot = RelicSlot::from_zh_cn(&self.name)?;
-        let star = self.star;
-        if !self.level.contains("+") {
-            return None;
-        }
-        let level = self
-            .level
-            .chars()
-            .skip(1)
-            .collect::<String>()
-            .parse::<u32>()
-            .ok()?;
-        let main_stat = RelicStat::from_zh_cn_raw(
-            (self.main_stat_name.clone() + "+" + self.main_stat_value.as_str()).as_str(),
-        )?;
-        let sub1 = RelicStat::from_zh_cn_raw(&self.sub_stat_1);
-        let sub2 = RelicStat::from_zh_cn_raw(&self.sub_stat_2);
-        let sub3 = RelicStat::from_zh_cn_raw(&self.sub_stat_3);
-        let sub4 = RelicStat::from_zh_cn_raw(&self.sub_stat_4);
-
-        let equip = None;
-/*         let equip = if self.equip.contains("已装备") {
-            //let equip_name = self.equip.clone();
-            //equip_name.remove_matches("已装备");
-            //let equip_name = &self.equip[..self.equip.len()-9];
-            let chars = self.equip.chars().collect_vec();
-            let chars2 = &chars[..chars.len() - 3];
-            let equip_name = chars2.iter().collect::<String>();
-            if CHARACTER_NAMES.contains(equip_name.as_str()) {
-                Some(equip_name)
-            } else {
-                None
-            }
-        } else {
-            None
-        }; */
-
-        let relic = InternalRelic {
-            set_name,
-            slot,
-            star,
-            level,
-            main_stat,
-            sub_stat_1: sub1,
-            sub_stat_2: sub2,
-            sub_stat_3: sub3,
-            sub_stat_4: sub4,
-            equip,
-        };
-        Some(relic)
-    }
-}
-
 fn calc_pool(row: &Vec<u8>) -> f32 {
     let len = row.len() / 3;
     let mut pool: f32 = 0.0;
@@ -210,10 +79,7 @@ impl YasScanner {
         let col = info.art_col;
 
         YasScanner {
-            model: CRNNModel::new(
-                String::from("model_training_starrail.onnx"),
-                String::from("index_2_word_starrail.json"),
-            ),
+            model: CRNNModel::new(GameType::Starrail)?,
             enigo: Enigo::new(),
             info,
             config,
