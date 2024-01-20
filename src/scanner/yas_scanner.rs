@@ -7,15 +7,13 @@ use std::path::Path;
 use std::sync::mpsc;
 use std::thread;
 use std::time::SystemTime;
-// use tract_onnx::tract_core::downcast_rs::Downcast;
 
 use dxgcap::DXGIManager;
 use enigo::*;
 use log::{debug, error, info, trace, warn};
 
-use crate::artifact::internal_artifact::{
-    ArtifactSetKey, ArtifactSlotKey, ArtifactStat, CharacterKey, InternalArtifact,
-};
+use crate::artifact::internal_artifact::*;
+use crate::artifact::internal_relic::*;
 use crate::capture::{self, capture_absolute_raw_image};
 use crate::common::color::Color;
 use crate::common::{utils, PixelRect, RawCaptureImage};
@@ -93,6 +91,45 @@ impl YasScanResult {
         };
         Some(art)
     }
+
+    pub fn to_internal_relic(&self) -> Option<InternalRelic> {
+        let set_name = RelicSetName::from_zh_cn(&self.name)?;
+        let slot = RelicSlot::from_zh_cn(&self.name)?;
+        let star = self.rarity;
+        if !self.level.contains("+") {
+            return None;
+        }
+        let level = self
+            .level
+            .chars()
+            .skip(1)
+            .collect::<String>()
+            .parse::<u32>()
+            .ok()?;
+        let main_stat = RelicStat::from_zh_cn_raw(
+            (self.main_stat_name.clone() + "+" + self.main_stat_value.as_str()).as_str(),
+        )?;
+        let sub1 = RelicStat::from_zh_cn_raw(&self.sub_stat_1);
+        let sub2 = RelicStat::from_zh_cn_raw(&self.sub_stat_2);
+        let sub3 = RelicStat::from_zh_cn_raw(&self.sub_stat_3);
+        let sub4 = RelicStat::from_zh_cn_raw(&self.sub_stat_4);
+
+        let equip = None;
+
+        let relic = InternalRelic {
+            set_name,
+            slot,
+            star,
+            level,
+            main_stat,
+            sub_stat_1: sub1,
+            sub_stat_2: sub2,
+            sub_stat_3: sub3,
+            sub_stat_4: sub4,
+            equip,
+        };
+        Some(relic)
+    }
 }
 
 fn eq(x: u8, y: u8, threshold: u8) -> bool {
@@ -155,8 +192,10 @@ impl YasScanner {
                 .map_err(|e| anyhow!("dxg capture init err: {:?}", e))?;
         }
 
+        let game = config.game;
+
         Ok(YasScanner {
-            model: CRNNModel::new()?,
+            model: CRNNModel::new(game)?,
             enigo: Enigo::new(),
             dxg,
 
@@ -380,7 +419,7 @@ impl YasScanner {
             // raw_after_pp.to_gray_image().save("count.png");
             let s = self.model.inference_string(&raw_after_pp)?;
             info!("raw count string: {}", s);
-            if s.starts_with("圣遗物") {
+            if s.starts_with("圣遗物") || s.starts_with("") {
                 let chars = s.chars().collect::<Vec<char>>();
                 let count_str = (&chars[4..chars.len() - 5]).iter().collect::<String>();
                 let count = match count_str.parse::<u32>() {
@@ -766,9 +805,10 @@ impl YasScanner {
         // v bvvmnvbm
         let is_dump_mode = self.config.dump_mode;
         let min_level = self.config.min_level;
+        let game = self.config.game;
         let handle = thread::spawn(move || -> Result<Vec<InternalArtifact>> {
             let mut results: Vec<InternalArtifact> = Vec::new();
-            let model = CRNNModel::new()?;
+            let model = CRNNModel::new(game)?;
             let mut error_count = 0;
             let mut dup_count = 0;
             let mut hash = HashSet::new();

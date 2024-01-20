@@ -22,6 +22,7 @@ pub struct YasScannerConfig {
     pub scroll_speed: f64,
     pub lock_stop: u32,
     pub max_wait_lock: u32,
+    pub game: GameType
 }
 
 impl YasScannerConfig {
@@ -41,10 +42,28 @@ impl YasScannerConfig {
             max_wait_scroll: *matches.get_one("max-wait-scroll").unwrap(),
             dxgcap: matches.get_flag("dxgcap"),
             default_stop: *matches.get_one("default-stop").unwrap(),
-            yun: matches.get_one::<String>("window").unwrap().to_string() != String::from("原神"),
+            yun: matches.get_flag("cloud"),
             scroll_speed: *matches.get_one("scroll-speed").unwrap(),
             lock_stop: *matches.get_one("lock-stop").unwrap(),
             max_wait_lock: *matches.get_one("max-wait-lock").unwrap(),
+            game: GameType::from_string((*matches.get_one::<String>("game").unwrap().to_string()).to_owned()),
         })
+    }
+}
+
+#[derive(Debug, Default, Copy, Clone, Deserialize, Serialize)]
+pub enum GameType {
+    #[default]
+    Genshin,
+    Starrail
+}
+
+impl GameType {
+
+    pub fn from_string(s: String) -> GameType {
+        match s.as_str() {
+            "Starrail" => GameType::Starrail,
+            _ => GameType::Genshin
+        }
     }
 }

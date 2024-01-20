@@ -21,6 +21,7 @@ use yas::capture::capture_absolute_image;
 use yas::expo::genmo::GenmoFormat;
 use yas::expo::good::GoodFormat;
 use yas::expo::mona::MonaFormat;
+use yas::scanner::config::GameType;
 use yas::info::info::ScanInfo;
 use yas::scanner::config::YasScannerConfig;
 #[cfg(windows)]
@@ -54,7 +55,7 @@ fn start(matches: ArgMatches) -> Result<()> {
         return Err(anyhow!("请以管理员身份运行该程序"));
     }
 
-    if matches.get_flag("listen") {
+    if matches.get_flag("ws") {
         run_ws(matches, do_scan, do_lock)
     } else {
         run_once(matches)
@@ -138,12 +139,13 @@ fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
 
     let window_name: String = matches.get_one::<String>("window").unwrap().to_string();
 
-    let hwnd = if window_name == String::from("原神") {
-        utils::find_ys_window()
+    let hwnd = if window_name.is_empty() {
+        let game_type = GameType::from_string(matches.get_one::<String>("game").unwrap().to_string());
+        utils::find_game_window(game_type)
     } else {
         utils::find_window_by_name(&window_name)
     }
-        .map_err(|_| anyhow!("未找到原神窗口，请确认原神已经开启"))?;
+        .map_err(|_| anyhow!("未找到游戏窗口，请确认游戏已经开启"))?;
 
     utils::show_window_and_set_foreground(hwnd);
     utils::sleep(1000);

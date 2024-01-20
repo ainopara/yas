@@ -4,8 +4,23 @@ use tract_onnx::prelude::*;
 
 use crate::common::RawImage;
 use image::EncodableLayout;
+use crate::scanner::config::GameType;
 
 type ModelType = RunnableModel<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
+
+
+
+fn get_model_data(game_type: GameType) -> (&'static [u8], String) {
+    let genshin_bytes = include_bytes!("../../models/model_genshin.onnx");
+    let starrail_bytes = include_bytes!("../../models/model_starrail.onnx");
+    let genshin_content = String::from(include_str!("../../models/index_2_word_genshin.json"));
+    let starrail_content = String::from(include_str!("../../models/index_2_word_starrail.json"));
+    match game_type {
+        GameType::Genshin => (genshin_bytes, genshin_content),
+        GameType::Starrail => (starrail_bytes, starrail_content)
+    }
+}
+
 
 pub struct CRNNModel {
     model: ModelType,
@@ -15,13 +30,8 @@ pub struct CRNNModel {
 }
 
 impl CRNNModel {
-    pub fn new() -> Result<CRNNModel> {
-        // let model = tract_onnx::onnx()
-        //     .model_for_path(String::from("models/") + name.as_str()).unwrap()
-        //     .with_input_fact(0, InferenceFact::dt_shape(f32::datum_type(), tvec!(1, 1, 32, 384))).unwrap()
-        //     .into_optimized().unwrap()
-        //     .into_runnable().unwrap();
-        let bytes = include_bytes!("../../models/model_genshin.onnx");
+    pub fn new(game_type: GameType) -> Result<CRNNModel> {
+        let (bytes, content) = get_model_data(game_type);
 
         let model = tract_onnx::onnx()
             .model_for_read(&mut bytes.as_bytes())?
@@ -32,8 +42,6 @@ impl CRNNModel {
             .into_optimized()?
             .into_runnable()?;
 
-        // let content = utils::read_file_to_string(String::from("models/index_2_word.json"));
-        let content = String::from(include_str!("../../models/index_2_word.json"));
         let json: Value = serde_json::from_str(content.as_str())?;
 
         let mut index_2_word: Vec<String> = Vec::new();

@@ -11,9 +11,14 @@ pub fn get_cli() -> Command {
         .arg(arg!(--"verbose" "显示详细信息"))
         .arg(arg!(--"no-check" "不检测是否已打开背包等"))
         .arg(arg!(--"dxgcap" "使用dxgcap捕获屏幕"))
+        .arg(arg!(--"ws" "开启 Websocket 服务"))
         .arg(
-            arg!(--"listen" <HOST> "开启 Websocket 服务")
+            arg!(--"listen" <HOST> "Websocket 服务监听端口号")
                 .default_value("127.0.0.1:2022"),
+        )
+        .arg(
+            arg!(--"game" <ID> "Genshin or Starrail")
+                .default_value("Genshin"),
         )
         .arg(
             arg!(--"max-row" <ROW> "最大扫描行数")
@@ -84,6 +89,7 @@ pub fn get_cli() -> Command {
             arg!(--"window" <NAME> "游戏窗口名")
                 .default_value(""),
         )
+        .arg(arg!(--"cloud" "是否云游戏"))
         .arg(
             arg!(--"scroll-speed" <SPEED> "滚轮速度（单位：像素，仅在云原神模式下生效）")
                 .default_value("15.0")

@@ -33,6 +33,7 @@ use winapi::um::winnt::{
     DOMAIN_ALIAS_RID_ADMINS, PSID, SECURITY_BUILTIN_DOMAIN_RID, SECURITY_NT_AUTHORITY,
     SID_IDENTIFIER_AUTHORITY,
 };
+use crate::scanner::config::GameType;
 
 #[cfg(windows)]
 pub fn encode_wide(s: String) -> Vec<u16> {
@@ -51,9 +52,13 @@ fn find_window(p_class_name: *const u16, p_window_name: *const u16) -> Result<HW
 }
 
 #[cfg(windows)]
-pub fn find_ys_window() -> Result<HWND, String> {
+pub fn find_game_window(game: GameType) -> Result<HWND, String> {
+    let name = match game {
+        GameType::Genshin => String::from("原神"),
+        GameType::Starrail => String::from("崩坏：星穹铁道")
+    };
     let class_name = encode_wide(String::from("UnityWndClass"));
-    let window_name = encode_wide(String::from("原神"));
+    let window_name = encode_wide(name);
     find_window(class_name.as_ptr(), window_name.as_ptr())
 }
 

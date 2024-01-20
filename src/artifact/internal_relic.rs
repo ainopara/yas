@@ -42,30 +42,34 @@ pub enum RelicSlot {
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 #[derive(Display)]
 pub enum RelicSetName {
-    PasserbyofWanderingCloud,
-    MusketeerofWildWheat,
-    KnightofPurityPalace,
-    HunterofGlacialForest,
-    ChampionofStreetwiseBoxing,
-    GuardofWutheringSnow,
-    FiresmithofLavaForging,
-    GeniusofBrilliantStars,
-    BandofSizzlingThunder,
-    EagleofTwilightLine,
-    ThiefofShootingMeteor,
-    WastelanderofBanditryDesert,
-    SpaceSealingStation,
-    FleetoftheAgeless,
-    PanGalacticCommercialEnterprise,
-    BelobogoftheArchitects,
-    CelestialDifferentiator,
-    InertSalsotto,
-    TaliaKingdomofBanditry,
-    SprightlyVonwacq,
-    RutilantArena,
-    BrokenKeel,
-    LongevousDisciple,
-    MessengerTraversingHackerspace,
+    PasserbyofWanderingCloud,  // 云无留迹的过客
+    MusketeerofWildWheat,  // 野穗伴行的快枪手
+    KnightofPurityPalace,  // 净庭教宗的圣骑士
+    HunterofGlacialForest,  // 密林卧雪的猎人
+    ChampionofStreetwiseBoxing,  // 街头出身的拳王
+    GuardofWutheringSnow,  // 戍卫风雪的铁卫
+    FiresmithofLavaForging,  // 熔岩锻铸的火匠
+    GeniusofBrilliantStars,  // 繁星璀璨的天才
+    BandofSizzlingThunder,  // 激奏雷电的乐队
+    EagleofTwilightLine,  // 晨昏交界的翔鹰
+    ThiefofShootingMeteor,  // 流星追迹的怪盗
+    WastelanderofBanditryDesert,  // 盗匪荒漠的废土客
+    LongevousDisciple,  // 宝命长存的莳者
+    MessengerTraversingHackerspace,  // 骇域漫游的信使
+    TheAshblazingGrandDuke,  // 毁烬焚骨的大公
+    PrisonerinDeepConfinement,  // 幽锁深牢的系囚
+    SpaceSealingStation,  // 太空封印站
+    FleetoftheAgeless,  // 不老者的仙舟
+    PanCosmicCommercialEnterprise,  // 泛银河商业公司
+    BelobogoftheArchitects,  // 筑城者的贝洛伯格
+    CelestialDifferentiator,  // 星体差分机
+    InertSalsotto,  // 停止转动的萨尔索图
+    TaliaKingdomofBanditry,  // 盗贼公国塔利亚
+    SprightlyVonwacq,  // 生命的翁瓦克
+    RutilantArena,  // 繁星竞技场
+    BrokenKeel,  // 折断的龙骨
+    FirmamentFrontlineGlamoth,  // 苍穹战线格拉默
+    PenaconyLandoftheDreams,  // 梦想之地匹诺康尼
 }
 
 #[derive(Debug, Clone)]
@@ -196,6 +200,10 @@ pub fn get_real_relic_name_chs(raw: &str) -> Option<String> {
         "伊须磨洲的残船鲸落", "伊须磨洲的坼裂缆索",
         "莳者的复明义眼", "莳者的机巧木手", "莳者的承露羽衣", "莳者的天人丝履",
         "信使的全息目镜", "信使的百变义手", "信使的密信挎包", "信使的酷跑板鞋",
+        "大公的冥焰冠冕", "大公的绒火指套", "大公的蒙恩长袍", "大公的绅雅礼靴",
+        "系囚的合啮拘笼", "系囚的铅石梏铐", "系囚的幽闭缚束", "系囚的绝足锁桎",
+        "格拉默的寂静坟碑", "格拉默的铁骑兵团",
+        "匹诺康尼的逐梦轨道", "匹诺康尼的堂皇酒店",
     ];
 
     let mut min_index = 0;
@@ -241,7 +249,7 @@ impl RelicSetName {
             "废土客的呼吸面罩" | "废土客的荒漠终端" | "废土客的修士长袍" | "废土客的动力腿甲" => Some(RelicSetName::WastelanderofBanditryDesert),
             "「黑塔」的空间站点" | "「黑塔」的漫历轨迹" => Some(RelicSetName::SpaceSealingStation),
             "罗浮仙舟的天外楼船" | "罗浮仙舟的建木枝蔓" => Some(RelicSetName::FleetoftheAgeless),
-            "公司的巨构总部" | "公司的贸易航道" => Some(RelicSetName::PanGalacticCommercialEnterprise),
+            "公司的巨构总部" | "公司的贸易航道" => Some(RelicSetName::PanCosmicCommercialEnterprise),
             "贝洛伯格的存护堡垒" | "贝洛伯格的铁卫防线" => Some(RelicSetName::BelobogoftheArchitects),
             "螺丝星的机械烈阳" | "螺丝星的环星孔带" => Some(RelicSetName::CelestialDifferentiator),
             "萨尔索图的移动城市" | "萨尔索图的晨昏界线" => Some(RelicSetName::InertSalsotto),
@@ -251,6 +259,10 @@ impl RelicSetName {
             "伊须磨洲的残船鲸落" | "伊须磨洲的坼裂缆索" => Some(RelicSetName::BrokenKeel),
             "莳者的复明义眼" | "莳者的机巧木手" | "莳者的承露羽衣" | "莳者的天人丝履" => Some(RelicSetName::LongevousDisciple),
             "信使的全息目镜" | "信使的百变义手" | "信使的密信挎包" | "信使的酷跑板鞋" => Some(RelicSetName::MessengerTraversingHackerspace),
+            "大公的冥焰冠冕" | "大公的绒火指套" | "大公的蒙恩长袍" | "大公的绅雅礼靴" => Some(RelicSetName::TheAshblazingGrandDuke),
+            "系囚的合啮拘笼" | "系囚的铅石梏铐" | "系囚的幽闭缚束" | "系囚的绝足锁桎" => Some(RelicSetName::PrisonerinDeepConfinement),
+            "格拉默的寂静坟碑" | "格拉默的铁骑兵团" => Some(RelicSetName::FirmamentFrontlineGlamoth),
+            "匹诺康尼的逐梦轨道" | "匹诺康尼的堂皇酒店" => Some(RelicSetName::PenaconyLandoftheDreams),
             _ => None,
         }
     }
@@ -263,12 +275,12 @@ impl RelicSlot {
         //     None => return None,
         // };
         match s {
-            "过客的逢春木簪" | "快枪手的野穗毡帽" | "圣骑的宽恕盔面" | "雪猎的荒神兜帽" | "拳王的冠军护头" | "铁卫的铸铁面盔" | "火匠的黑耀目镜" | "天才的超距遥感" | "乐队的偏光墨镜" | "翔鹰的长喙头盔" | "怪盗的千人假面" | "废土客的呼吸面罩" | "莳者的复明义眼" | "信使的全息目镜" => Some(RelicSlot::Head),
-            "过客的游龙臂鞲" | "快枪手的粗革手套" | "圣骑的沉默誓环" | "雪猎的巨蜥手套" | "拳王的重炮拳套" | "铁卫的银鳞手甲" | "火匠的御火戒指" | "天才的频变捕手" | "乐队的巡演手绳" | "翔鹰的鹰击指环" | "怪盗的绘纹手套" | "废土客的荒漠终端" | "莳者的机巧木手" | "信使的百变义手" => Some(RelicSlot::Hands),
-            "过客的残绣风衣" | "快枪手的猎风披肩" | "圣骑的肃穆胸甲" | "雪猎的冰龙披风" | "拳王的贴身护胸" | "铁卫的旧制军服" | "火匠的阻燃围裙" | "天才的元域深潜" | "乐队的钉刺皮衣" | "翔鹰的翼装束带" | "怪盗的纤钢爪钩" | "废土客的修士长袍" | "莳者的承露羽衣" | "信使的密信挎包" => Some(RelicSlot::Body),
-            "过客的冥途游履" | "快枪手的铆钉马靴" | "圣骑的秩序铁靴" | "雪猎的鹿皮软靴" | "拳王的弧步战靴" | "铁卫的白银护胫" | "火匠的合金义肢" | "天才的引力漫步" | "乐队的铆钉短靴" | "翔鹰的绒羽绑带" | "怪盗的流星快靴" | "废土客的动力腿甲" | "莳者的天人丝履" | "信使的酷跑板鞋" => Some(RelicSlot::Feet),
-            "「黑塔」的空间站点" | "罗浮仙舟的天外楼船" | "公司的巨构总部" | "贝洛伯格的存护堡垒" | "螺丝星的机械烈阳" | "萨尔索图的移动城市" | "塔利亚的钉壳小镇" | "翁瓦克的诞生之岛" | "泰科铵的镭射球场" | "伊须磨洲的残船鲸落" => Some(RelicSlot::PlanarSphere),
-            "「黑塔」的漫历轨迹" | "罗浮仙舟的建木枝蔓" | "公司的贸易航道" | "贝洛伯格的铁卫防线" | "螺丝星的环星孔带" | "萨尔索图的晨昏界线" | "塔利亚的裸皮电线" | "翁瓦克的环岛海岸" | "泰科铵的弧光赛道" | "伊须磨洲的坼裂缆索" => Some(RelicSlot::LinkRope),
+            "过客的逢春木簪" | "快枪手的野穗毡帽" | "圣骑的宽恕盔面" | "雪猎的荒神兜帽" | "拳王的冠军护头" | "铁卫的铸铁面盔" | "火匠的黑耀目镜" | "天才的超距遥感" | "乐队的偏光墨镜" | "翔鹰的长喙头盔" | "怪盗的千人假面" | "废土客的呼吸面罩" | "莳者的复明义眼" | "信使的全息目镜" | "大公的冥焰冠冕" | "系囚的合啮拘笼" => Some(RelicSlot::Head),
+            "过客的游龙臂鞲" | "快枪手的粗革手套" | "圣骑的沉默誓环" | "雪猎的巨蜥手套" | "拳王的重炮拳套" | "铁卫的银鳞手甲" | "火匠的御火戒指" | "天才的频变捕手" | "乐队的巡演手绳" | "翔鹰的鹰击指环" | "怪盗的绘纹手套" | "废土客的荒漠终端" | "莳者的机巧木手" | "信使的百变义手" | "大公的绒火指套" | "系囚的铅石梏铐" => Some(RelicSlot::Hands),
+            "过客的残绣风衣" | "快枪手的猎风披肩" | "圣骑的肃穆胸甲" | "雪猎的冰龙披风" | "拳王的贴身护胸" | "铁卫的旧制军服" | "火匠的阻燃围裙" | "天才的元域深潜" | "乐队的钉刺皮衣" | "翔鹰的翼装束带" | "怪盗的纤钢爪钩" | "废土客的修士长袍" | "莳者的承露羽衣" | "信使的密信挎包" | "大公的蒙恩长袍" | "系囚的幽闭缚束" => Some(RelicSlot::Body),
+            "过客的冥途游履" | "快枪手的铆钉马靴" | "圣骑的秩序铁靴" | "雪猎的鹿皮软靴" | "拳王的弧步战靴" | "铁卫的白银护胫" | "火匠的合金义肢" | "天才的引力漫步" | "乐队的铆钉短靴" | "翔鹰的绒羽绑带" | "怪盗的流星快靴" | "废土客的动力腿甲" | "莳者的天人丝履" | "信使的酷跑板鞋" | "大公的绅雅礼靴" | "系囚的绝足锁桎" => Some(RelicSlot::Feet),
+            "「黑塔」的空间站点" | "罗浮仙舟的天外楼船" | "公司的巨构总部" | "贝洛伯格的存护堡垒" | "螺丝星的机械烈阳" | "萨尔索图的移动城市" | "塔利亚的钉壳小镇" | "翁瓦克的诞生之岛" | "泰科铵的镭射球场" | "伊须磨洲的残船鲸落" | "格拉默的铁骑兵团" | "匹诺康尼的堂皇酒店" => Some(RelicSlot::PlanarSphere),
+            "「黑塔」的漫历轨迹" | "罗浮仙舟的建木枝蔓" | "公司的贸易航道" | "贝洛伯格的铁卫防线" | "螺丝星的环星孔带" | "萨尔索图的晨昏界线" | "塔利亚的裸皮电线" | "翁瓦克的环岛海岸" | "泰科铵的弧光赛道" | "伊须磨洲的坼裂缆索" | "格拉默的寂静坟碑" | "匹诺康尼的逐梦轨道" => Some(RelicSlot::LinkRope),
             _ => None,
         }
     }

@@ -58,7 +58,7 @@ impl RelicSetName {
             RelicSetName::WastelanderofBanditryDesert => "WastelanderofBanditryDesert",
             RelicSetName::SpaceSealingStation => "SpaceSealingStation",
             RelicSetName::FleetoftheAgeless => "FleetoftheAgeless",
-            RelicSetName::PanGalacticCommercialEnterprise => "PanGalacticCommercialEnterprise",
+            RelicSetName::PanCosmicCommercialEnterprise => "PanCosmicCommercialEnterprise",
             RelicSetName::BelobogoftheArchitects => "BelobogoftheArchitects",
             RelicSetName::CelestialDifferentiator => "CelestialDifferentiator",
             RelicSetName::InertSalsotto => "InertSalsotto",
@@ -177,7 +177,6 @@ impl<'a> March7thFormat<'a> {
         let mut hands: Vec<&March7thRelic> = Vec::new();
         let mut body: Vec<&March7thRelic> = Vec::new();
         let mut feet: Vec<&March7thRelic> = Vec::new();
-        let mut head: Vec<&March7thRelic> = Vec::new();
         let mut sphere: Vec<&March7thRelic> = Vec::new();
         let mut rope: Vec<&March7thRelic> = Vec::new();
 
