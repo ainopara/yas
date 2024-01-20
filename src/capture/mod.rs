@@ -1,8 +1,8 @@
 #[cfg(windows)]
 extern crate winapi;
-use anyhow::{anyhow, Result};
-use std::mem::size_of;
-use std::ptr::null_mut;
+
+
+
 
 #[cfg(windows)]
 use winapi::ctypes::c_void;
@@ -16,10 +16,10 @@ use winapi::um::wingdi::{
 #[cfg(windows)]
 use winapi::um::winuser::{GetDC, ReleaseDC};
 
-use image::ImageBuffer;
 
-use crate::common::color::Color;
-use crate::common::{PixelRect, RawCaptureImage};
+
+
+
 
 #[cfg(windows)]
 unsafe fn unsafe_capture(rect: &PixelRect) -> Result<Vec<u8>> {

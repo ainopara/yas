@@ -5,23 +5,23 @@ use std::io::stdout;
 use std::io::Write;
 use std::net::TcpStream;
 use std::path::Path;
-use std::time::SystemTime;
+
 use tungstenite::WebSocket;
 use yas::artifact::internal_artifact::InternalArtifact;
 use yas::lock::LockAction;
 use yas::ws::packet::{ConfigNotifyData, LockRspData, ScanRspData};
 use yas::ws::packet::Packet;
 use yas::common::utils;
-use yas::expo::genmo::GenmoFormat;
-use yas::expo::good::GoodFormat;
-use yas::expo::mona::MonaFormat;
-use yas::info::info;
+
+
+
+
 
 #[cfg(windows)]
 use yas::capture::capture_absolute_image;
 #[cfg(windows)]
 use yas::scanner::yas_scanner::YasScanner;
-use yas::scanner::config::YasScannerConfig;
+
 
 use clap::{arg, value_parser, ArgMatches, Command};
 use env_logger::Builder;
@@ -203,7 +203,7 @@ fn do_scan(matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
 }
 
 #[cfg(not(windows))]
-fn do_scan(matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
+fn do_scan(_matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
     Ok(Vec::new())
 }
 
@@ -217,7 +217,7 @@ fn do_lock(matches: ArgMatches, actions: Vec<LockAction>) -> Result<()> {
 }
 
 #[cfg(not(windows))]
-fn do_lock(matches: ArgMatches, actions: Vec<LockAction>) -> Result<()> {
+fn do_lock(_matches: ArgMatches, _actions: Vec<LockAction>) -> Result<()> {
     Ok(())
 }
 
