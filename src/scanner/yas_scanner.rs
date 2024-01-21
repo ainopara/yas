@@ -1065,7 +1065,6 @@ impl YasScanner {
         let min_level = self.config.min_level;
         let game = self.config.game;
         let handle = thread::spawn(move || -> Result<Vec<InternalRelic>> {
-            debug!("handle start...");
             let mut results: Vec<InternalRelic> = Vec::new();
             let model = CRNNModel::new(game)?;
             let mut error_count = 0;
@@ -1076,12 +1075,14 @@ impl YasScanner {
 
             let mut cnt = 0;
             if is_dump_mode {
-                fs::create_dir("dumps")?;
+                let result = fs::create_dir("dumps");
+                match result {
+                    Ok(_) => debug!("Create dumps dir Succeed"),
+                    Err(e) => debug!("Failed to create dir: {}", e)
+                }
             }
 
-            debug!("Listening for rx...");
             for i in rx {
-                debug!("rx received");
                 let (capture, rarity, lock) = match i {
                     Some(v) => v,
                     None => break,

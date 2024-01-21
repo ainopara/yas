@@ -220,7 +220,7 @@ pub const WINDOW_16_9_STARRAIL: WindowInfo = WindowInfo {
     height: 900.0,
 
     title_pos: Rect(111.0, 1400.0, 132.0, 1169.0),
-    main_stat_name_pos: Rect(335.0, 1379.0, 355.0, 1207.0),
+    main_stat_name_pos: Rect(335.0, 1407.0, 355.0, 1207.0),
     main_stat_value_pos: Rect(335.0, 1535.0, 355.0, 1465.0),
     level_pos: Rect(258.0, 1240.0, 285.0, 1170.0),
     panel_pos: Rect(100.0, 1550.0, 780.0, 1150.0),
