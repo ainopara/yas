@@ -143,8 +143,8 @@ fn do_scan(matches: ArgMatches) -> Result<String> {
 }
 
 #[cfg(not(windows))]
-fn do_scan(_matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
-    Ok(Vec::new())
+fn do_scan(_matches: ArgMatches) -> Result<String> {
+    Ok(String::from(""))
 }
 
 #[cfg(windows)]

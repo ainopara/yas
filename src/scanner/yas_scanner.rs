@@ -10,7 +10,9 @@ use std::time::SystemTime;
 
 use dxgcap::DXGIManager;
 use enigo::*;
+use image::math::Rect;
 use log::{debug, error, info, trace, warn};
+use tract_onnx::ops::rec::scan::scan;
 
 use crate::artifact::internal_artifact::*;
 use crate::artifact::internal_relic::*;
@@ -621,20 +623,7 @@ impl YasScanner {
         Ok(())
     }
 
-    pub fn screenshot_and_mark(&mut self) -> Result<()> {
-        if !self.config.mark {
-            return Ok(());
-        }
-        // take screenshot
-        let rect = PixelRect {
-            left: self.info.left,
-            top: self.info.top,
-            width: self.info.width as i32,
-            height: self.info.height as i32,
-        };
-        let mut shot = self.capture(&rect)?;
-
-        // mark
+    pub fn mark(&mut self, shot: &Result<RawCaptureImage>) -> Result<()> {
         let a = |rect: &PixelRect| PixelRect {
             left: rect.left + self.info.panel_position.left,
             top: rect.top + self.info.panel_position.top,
@@ -665,6 +654,23 @@ impl YasScanner {
             &mark_color,
             alpha,
         )?;
+    }
+
+    pub fn screenshot_and_mark(&mut self) -> Result<()> {
+        if !self.config.mark {
+            return Ok(());
+        }
+        // take screenshot
+        let rect = PixelRect {
+            left: self.info.left,
+            top: self.info.top,
+            width: self.info.width as i32,
+            height: self.info.height as i32,
+        };
+        let mut shot = self.capture(&rect)?;
+
+        // mark
+        self.mark(&shot);
         // save
         self.create_dumps_folder()?;
         shot.save(&format!(
@@ -1039,6 +1045,48 @@ impl YasScanner {
             start_row = self.row - to_scroll_rows;
         }
 
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::common::{PixelRect, RawCaptureImage};
+    use crate::info::info::ScanInfo;
+    use crate::scanner::config::YasScannerConfig;
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_mark() -> anyhow::Result<()> {
+        let rect = PixelRect { left: 0, top: 0, width: 1920, height: 1080 };
+        let info = ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
+        let config = YasScannerConfig {
+            max_row: 1000,
+            capture_only: false,
+            min_star: 5,
+            min_level: 0,
+            max_wait_switch_artifact: 0,
+            scroll_stop: 0,
+            number: 0,
+            dump_mode: false,
+            speed: 1,
+            no_check: false,
+            max_wait_scroll: 0,
+            mark: true,
+            dxgcap: false,
+            default_stop: 0,
+            yun: false,
+            scroll_speed: 0.0,
+            lock_stop: 0,
+            max_wait_lock: 0,
+            game: crate::scanner::config::GameType::Genshin
+        };
+        let mut scanner = crate::scanner::yas_scanner::YasScanner::new(info, config);
+        let img = RawCaptureImage::load("test.png")?;
+        scanner.mark(img);
+        img.save("text_marked.png");
+        assert_eq!(1, 1);
         Ok(())
     }
 }

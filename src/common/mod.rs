@@ -3,7 +3,7 @@ use crate::capture;
 use crate::inference::pre_process::{pre_process, raw_to_img, to_gray, uint8_raw_to_img};
 use crate::info::info::ScanInfo;
 use anyhow::{anyhow, Result};
-use image::{GrayImage, ImageBuffer, ImageResult, RgbImage};
+use image::{GenericImageView, GrayImage, ImageBuffer, ImageResult, RgbImage};
 use log::info;
 use std::time::SystemTime;
 
@@ -146,6 +146,22 @@ impl RawCaptureImage {
         });
 
         img.save(path)
+    }
+
+    pub fn load(path: &str) -> Result<Self> {
+        let img = image::open(path)?;
+        let (w, h) = img.dimensions();
+        let mut data = Vec::new();
+
+        for y in 0..h {
+            for x in 0..w {
+                let pixel = img.get_pixel(x, y).0;
+                // 将像素按照 save 方法中的格式存储：[B, G, R]
+                data.extend_from_slice(&[pixel[2], pixel[1], pixel[0]]);
+            }
+        }
+
+        Ok(RawCaptureImage { data, w, h })
     }
     pub fn crop_to_raw_img(&self, rect: &PixelRect) -> RawImage {
         // let now = SystemTime::now();
