@@ -74,11 +74,11 @@ fn calc_pool(row: &Vec<u8>) -> f32 {
 }
 
 impl YasScanner {
-    pub fn new(info: ScanInfoStarRail, config: YasScannerConfig, is_cloud: bool) -> YasScanner {
+    pub fn new(info: ScanInfoStarRail, config: YasScannerConfig, is_cloud: bool) -> Result<YasScanner> {
         let row = info.art_row;
         let col = info.art_col;
 
-        YasScanner {
+        Ok(YasScanner {
             model: CRNNModel::new(GameType::Starrail)?,
             enigo: Enigo::new(),
             info,
@@ -96,7 +96,7 @@ impl YasScanner {
             scanned_count: 0,
 
             is_cloud,
-        }
+        })
     }
 }
 
@@ -176,7 +176,7 @@ impl YasScanner {
             width: w,
             height: h,
         };
-        let u8_arr = capture::capture_absolute(&rect)?;
+        let u8_arr = capture::capture_absolute_image(&rect)?;
         // info!("capture time: {}ms", now.elapsed().unwrap().as_millis());
         Ok(u8_arr)
     }
@@ -476,15 +476,11 @@ impl YasScanner {
         let (tx, rx) = mpsc::channel::<Option<(RgbImage, u32)>>();
         let info_2 = self.info.clone();
         // v bvvmnvbm
-        let is_verbose = self.config.verbose;
         let is_dump_mode = self.config.dump_mode;
         let min_level = self.config.min_level;
         let handle = thread::spawn(move || {
             let mut results: Vec<InternalRelic> = Vec::new();
-            let model = CRNNModel::new(
-                String::from("model_training_starrail.onnx"),
-                String::from("index_2_word_starrail.json"),
-            );
+            let model = CRNNModel::new(GameType::Starrail);
             let mut error_count = 0;
             let mut dup_count = 0;
             let mut hash = HashSet::new();
@@ -511,11 +507,12 @@ impl YasScanner {
                 //info!("raw capture image: width = {}, height = {}", capture.width(), capture.height());
                 let _now = SystemTime::now();
 
-                let model_inference = |pos: &PixelRectBound,
-                                       name: &str,
-                                       captured_img: &RgbImage,
-                                       cnt: i32|
-                 -> String {
+                let model_inference = |
+                    pos: &PixelRectBound,
+                    name: &str,
+                    captured_img: &RgbImage,
+                    cnt: i32
+                | -> String {
                     let rect = convert_rect(pos);
                     let raw_img = to_gray(captured_img)
                         .view(
@@ -604,12 +601,10 @@ impl YasScanner {
                     sub_stat_3: str_sub_stat_3_name + "+" + &str_sub_stat_3_value,
                     sub_stat_4: str_sub_stat_4_name + "+" + &str_sub_stat_4_value,
                     level: str_level,
-                    equip: String::new(),
-                    star,
+                    location: String::new(),
+                    rarity: star,
+                    lock: false
                 };
-                if is_verbose {
-                    info!("{:?}", result);
-                }
                 // println!("{:?}", result);
                 let relic = result.to_internal_relic();
                 if let Some(a) = relic {
@@ -724,14 +719,14 @@ impl YasScanner {
     }
     fn wait_until_switched(&mut self) -> bool {
         if self.is_cloud {
-            utils::sleep(self.config.cloud_wait_switch_relic);
+            utils::sleep(self.config.default_stop);
             return true;
         }
         let now = SystemTime::now();
 
         let mut consecutive_time = 0;
         let mut diff_flag = false;
-        while now.elapsed().unwrap().as_millis() < self.config.max_wait_switch_relic as u128 {
+        while now.elapsed().unwrap().as_millis() < self.config.max_wait_switch_artifact as u128 {
             // let pool_start = SystemTime::now();
             let rect = PixelRect {
                 left: self.info.left as i32 + self.info.pool_position.left,
@@ -739,7 +734,7 @@ impl YasScanner {
                 width: self.info.pool_position.right - self.info.pool_position.left,
                 height: self.info.pool_position.bottom - self.info.pool_position.top,
             };
-            let im = capture::capture_absolute(&rect).unwrap();
+            let im = capture::capture_absolute_image(&rect).unwrap();
             let pool = calc_pool(im.as_raw()) as f64;
             // info!("pool: {}", pool);
             // println!("pool time: {}ms", pool_start.elapsed().unwrap().as_millis());

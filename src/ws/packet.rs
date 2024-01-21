@@ -1,7 +1,4 @@
-use crate::{
-    artifact::internal_artifact::InternalArtifact, expo::good::GoodFormat,
-    scanner::config::YasScannerConfig,
-};
+use crate::scanner::config::YasScannerConfig;
 use anyhow::Result;
 use clap::ArgMatches;
 use serde::{Deserialize, Serialize};
@@ -36,12 +33,12 @@ pub struct ScanRspData {
 }
 
 impl ScanRspData {
-    pub fn new(result: Result<Vec<InternalArtifact>>) -> Result<ScanRspData> {
+    pub fn new(result: Result<String>) -> Result<ScanRspData> {
         Ok(match result {
             Ok(arts) => ScanRspData {
                 success: true,
                 message: String::from(""),
-                good_json: to_string(&GoodFormat::new(&arts))?,
+                good_json: arts,
             },
             Err(e) => ScanRspData {
                 success: false,
@@ -50,7 +47,7 @@ impl ScanRspData {
             },
         })
     }
-    pub fn packet(result: Result<Vec<InternalArtifact>>) -> Result<Packet> {
+    pub fn packet(result: Result<String>) -> Result<Packet> {
         Ok(Packet::ScanRsp(Self::new(result)?))
     }
 }

@@ -3,14 +3,13 @@ use anyhow::anyhow;
 use clap::ArgMatches;
 use log::{info, warn};
 use tungstenite::{accept, Message, WebSocket};
-use crate::artifact::internal_artifact::InternalArtifact;
 use crate::lock::LockAction;
 use crate::ws::packet::{ConfigNotifyData, LockRspData, Packet, ScanRspData};
 use crate::common::cli::get_cli;
 
 pub fn run_ws(
     matches: ArgMatches,
-    do_scan: fn(_matches: ArgMatches) -> anyhow::Result<Vec<InternalArtifact>>,
+    do_scan: fn(_matches: ArgMatches) -> anyhow::Result<String>,
     do_lock: fn(_matches: ArgMatches, _actions: Vec<LockAction>) -> anyhow::Result<()>
 ) -> anyhow::Result<()> {
     let verbose = matches.get_flag("verbose");

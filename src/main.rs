@@ -9,8 +9,8 @@ use std::time::SystemTime;
 use clap::{ArgMatches};
 use env_logger::Builder;
 use log::{error, info, LevelFilter};
+use serde_json::to_string;
 
-use yas::artifact::internal_artifact::InternalArtifact;
 use yas::lock::LockAction;
 use yas::common::utils;
 use yas::common::cli::get_cli;
@@ -21,6 +21,8 @@ use yas::capture::capture_absolute_image;
 use yas::expo::genmo::GenmoFormat;
 use yas::expo::good::GoodFormat;
 use yas::expo::mona::MonaFormat;
+use yas::expo::march7th::March7thFormat;
+use yas::expo::hood::HoodFormat;
 use yas::scanner::config::GameType;
 use yas::info::info::ScanInfo;
 use yas::scanner::config::YasScannerConfig;
@@ -89,29 +91,55 @@ fn run_once(matches: ArgMatches) -> Result<()> {
 }
 
 #[cfg(windows)]
-fn do_scan(matches: ArgMatches) -> Result<Vec<InternalArtifact>> {
+fn do_scan(matches: ArgMatches) -> Result<String> {
     let config = YasScannerConfig::from_match(&matches)?;
     let info = get_info(&matches)?;
     let output_dir = Path::new(matches.try_get_one::<String>("output-dir")?.unwrap());
 
+    let game = config.game;
     let mut scanner = YasScanner::new(info.clone(), config)?;
 
-    let now = SystemTime::now();
-    let results = scanner.scan()?;
-    let t = now.elapsed()?.as_secs_f64();
-    info!("time: {}s", t);
+    match game {
+        GameType::Genshin => {
+            let now = SystemTime::now();
+            let results = scanner.scan()?;
+            let t = now.elapsed()?.as_secs_f64();
+            info!("time: {}s", t);
 
-    // Mona
-    let mona = MonaFormat::new(&results);
-    utils::dump_json(&mona, output_dir.join("mona.json"))?;
-    // Genmo
-    let genmo = GenmoFormat::new(&results);
-    utils::dump_json(&genmo, output_dir.join("genmo.json"))?;
-    // GOOD
-    let good = GoodFormat::new(&results);
-    utils::dump_json(&good, output_dir.join("good.json"))?;
+            // Mona
+            let mona = MonaFormat::new(&results);
+            utils::dump_json(&mona, output_dir.join("mona.json"))?;
+            // Genmo
+            let genmo = GenmoFormat::new(&results);
+            utils::dump_json(&genmo, output_dir.join("genmo.json"))?;
+            // GOOD
+            let good = GoodFormat::new(&results);
+            utils::dump_json(&good, output_dir.join("good.json"))?;
 
-    Ok(results)
+            Ok(to_string(&GoodFormat::new(&results))?)
+        }
+        GameType::Starrail => {
+            let now = SystemTime::now();
+            let results = scanner.scan_starrail()?;
+            let t = now.elapsed()?.as_secs_f64();
+            info!("time: {}s", t);
+
+            let output_filename = output_dir.join("march7th.json");
+            let march7th = March7thFormat::new(&results);
+            march7th.save(String::from(output_filename.to_str().unwrap()));
+
+            let output_filename = output_dir.join("hood.json");
+            let hood = HoodFormat::new(&results);
+            hood.save(String::from(output_filename.to_str().unwrap()));
+
+            Ok(to_string(&HoodFormat::new(&results))?)
+        }
+    }
+
+
+
+
+
 }
 
 #[cfg(not(windows))]
@@ -167,8 +195,7 @@ fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
 
     let info: ScanInfo;
     if rect.height * 16 == rect.width * 9 {
-        info =
-            ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
+        info = ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
     } else if rect.height * 8 == rect.width * 5 {
         info = ScanInfo::from_8_5(rect.width as u32, rect.height as u32, rect.left, rect.top);
     } else if rect.height * 4 == rect.width * 3 {

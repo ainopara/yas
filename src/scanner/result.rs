@@ -3,17 +3,17 @@ use crate::artifact::internal_relic::{InternalRelic, RelicSetName, RelicSlot, Re
 
 #[derive(Debug)]
 pub struct YasScanResult {
-    name: String,
-    main_stat_name: String,
-    main_stat_value: String,
-    sub_stat_1: String,
-    sub_stat_2: String,
-    sub_stat_3: String,
-    sub_stat_4: String,
-    level: String,
-    location: String,
-    rarity: u32,
-    lock: bool,
+    pub name: String,
+    pub main_stat_name: String,
+    pub main_stat_value: String,
+    pub sub_stat_1: String,
+    pub sub_stat_2: String,
+    pub sub_stat_3: String,
+    pub sub_stat_4: String,
+    pub level: String,
+    pub location: String,
+    pub rarity: u32,
+    pub lock: bool,
 }
 
 impl YasScanResult {

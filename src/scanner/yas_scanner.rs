@@ -92,8 +92,6 @@ impl YasScanner {
                 .map_err(|e| anyhow!("dxg capture init err: {:?}", e))?;
         }
 
-        let game = config.game;
-
         Ok(YasScanner {
             model: CRNNModel::new(GameType::Genshin)?,
             enigo: Enigo::new(),
@@ -905,6 +903,10 @@ impl YasScanner {
             handle.join().map_err(|_| anyhow!("thread join err"))??;
         info!("count: {}", results.len());
         Ok(results)
+    }
+
+    pub fn scan_starrail(&mut self) -> Result<Vec<InternalRelic>> {
+        Ok(Vec::new())
     }
 
     pub fn lock(&mut self, actions: Vec<LockAction>) -> Result<()> {
