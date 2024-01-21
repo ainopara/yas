@@ -1,5 +1,6 @@
 use crate::common::{PixelRect, PixelRectBound};
-use crate::info::window_info::{WINDOW_16_9, WINDOW_4_3, WINDOW_8_5};
+use crate::info::window_info::{WINDOW_16_9, WINDOW_16_9_STARRAIL};
+use crate::scanner::config::GameType;
 
 #[derive(Clone, Debug)]
 pub struct ScanInfo {
@@ -16,6 +17,15 @@ pub struct ScanInfo {
     pub sub_stat2_position: PixelRect,
     pub sub_stat3_position: PixelRect,
     pub sub_stat4_position: PixelRect,
+
+    pub sub_stat1_name_pos: PixelRect,
+    pub sub_stat1_value_pos: PixelRect,
+    pub sub_stat2_name_pos: PixelRect,
+    pub sub_stat2_value_pos: PixelRect,
+    pub sub_stat3_name_pos: PixelRect,
+    pub sub_stat3_value_pos: PixelRect,
+    pub sub_stat4_name_pos: PixelRect,
+    pub sub_stat4_value_pos: PixelRect,
 
     pub equip_position: PixelRect,
 
@@ -71,25 +81,20 @@ impl ScanInfo {
         WINDOW_16_9.to_scan_info(height as f64, width as f64, left, top)
     }
 
-    pub fn from_8_5(width: u32, height: u32, left: i32, top: i32) -> ScanInfo {
-        WINDOW_8_5.to_scan_info(height as f64, width as f64, left, top)
-    }
-
-    pub fn from_4_3(width: u32, height: u32, left: i32, top: i32) -> ScanInfo {
-        WINDOW_4_3.to_scan_info(height as f64, width as f64, left, top)
+    pub fn from_16_9_starrail(width: u32, height: u32, left: i32, top: i32) -> ScanInfo {
+        WINDOW_16_9_STARRAIL.to_scan_info(height as f64, width as f64, left, top)
     }
 }
 
 impl ScanInfo {
-    pub fn from_rect(rect: &PixelRect) -> Result<ScanInfo, String> {
+    pub fn from_rect(rect: &PixelRect, game: GameType) -> Result<ScanInfo, String> {
         let info: ScanInfo;
         if rect.height * 16 == rect.width * 9 {
-            info = ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
-        } else if rect.height * 8 == rect.width * 5 {
-            info = ScanInfo::from_8_5(rect.width as u32, rect.height as u32, rect.left, rect.top);
-        } else if rect.height * 4 == rect.width * 3 {
-            info = ScanInfo::from_4_3(rect.width as u32, rect.height as u32, rect.left, rect.top);
-        } else {
+            info = match game {
+                GameType::Genshin => ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top),
+                GameType::Starrail => ScanInfo::from_16_9_starrail(rect.width as u32, rect.height as u32, rect.left, rect.top),
+            };
+        }else {
             return Err(String::from("不支持的分辨率"));
         }
 

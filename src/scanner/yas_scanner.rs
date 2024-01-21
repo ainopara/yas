@@ -10,9 +10,7 @@ use std::time::SystemTime;
 
 use dxgcap::DXGIManager;
 use enigo::*;
-use image::math::Rect;
 use log::{debug, error, info, trace, warn};
-use tract_onnx::ops::rec::scan::scan;
 
 use crate::artifact::internal_artifact::*;
 use crate::artifact::internal_relic::*;
@@ -204,10 +202,24 @@ impl YasScanner {
 
     fn get_pool(&mut self, shot: &RawCaptureImage) -> Result<f64> {
         let mut pool = 0_f64;
-        pool += get_pool_of_rect(&shot, &self.info.sub_stat1_position)?;
-        pool += get_pool_of_rect(&shot, &self.info.sub_stat2_position)?;
-        pool += get_pool_of_rect(&shot, &self.info.sub_stat3_position)?;
-        pool += get_pool_of_rect(&shot, &self.info.sub_stat4_position)?;
+        match self.config.game {
+            GameType::Genshin => {
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat1_position)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat2_position)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat3_position)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat4_position)?;
+            },
+            GameType::Starrail => {
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat1_name_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat1_value_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat2_name_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat2_value_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat3_name_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat3_value_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat4_name_pos)?;
+                pool += get_pool_of_rect(&shot, &self.info.sub_stat4_value_pos)?;
+            }
+        }
 
         if self.config.mark {
             shot.save(&format!("dumps/pool_{}.png", pool))?;
@@ -319,18 +331,18 @@ impl YasScanner {
             // raw_after_pp.to_gray_image().save("count.png");
             let s = self.model.inference_string(&raw_after_pp)?;
             info!("raw count string: {}", s);
-            if s.starts_with("圣遗物") || s.starts_with("") {
+            if s.starts_with("圣遗物") || s.starts_with("遗器数量") {
                 let chars = s.chars().collect::<Vec<char>>();
                 let count_str = (&chars[4..chars.len() - 5]).iter().collect::<String>();
                 let count = match count_str.parse::<u32>() {
                     Ok(v) => v,
                     Err(_) => {
-                        return Err(anyhow!("无法识别圣遗物数量"));
+                        return Err(anyhow!("无法识别圣遗物/遗器数量"));
                     }
                 };
                 return Ok(count);
             }
-            Err(anyhow!("无法识别圣遗物数量"))
+            Err(anyhow!("无法识别圣遗物/遗器数量"))
         } else {
             return Ok(count);
         }
@@ -477,28 +489,56 @@ impl YasScanner {
     fn get_star(&self, shot: &RawCaptureImage) -> Result<u32> {
         let color = shot.get_color(self.info.star_x, self.info.star_y)?;
 
-        let color_1 = Color::from(113, 119, 139);
-        let color_2 = Color::from(42, 143, 114);
-        let color_3 = Color::from(81, 127, 203);
-        let color_4 = Color::from(161, 86, 224);
-        let color_5 = Color::from(188, 105, 50);
+        match self.config.game {
+            GameType::Genshin => {
+                let color_1 = Color::from(113, 119, 139);
+                let color_2 = Color::from(42, 143, 114);
+                let color_3 = Color::from(81, 127, 203);
+                let color_4 = Color::from(161, 86, 224);
+                let color_5 = Color::from(188, 105, 50);
 
-        let min_dis: u32 = color_1.dis_2(&color);
-        let mut star = 1_u32;
-        if color_2.dis_2(&color) < min_dis {
-            star = 2;
-        }
-        if color_3.dis_2(&color) < min_dis {
-            star = 3;
-        }
-        if color_4.dis_2(&color) < min_dis {
-            star = 4;
-        }
-        if color_5.dis_2(&color) < min_dis {
-            star = 5;
-        }
+                let min_dis: u32 = color_1.dis_2(&color);
+                let mut star = 1_u32;
+                if color_2.dis_2(&color) < min_dis {
+                    star = 2;
+                }
+                if color_3.dis_2(&color) < min_dis {
+                    star = 3;
+                }
+                if color_4.dis_2(&color) < min_dis {
+                    star = 4;
+                }
+                if color_5.dis_2(&color) < min_dis {
+                    star = 5;
+                }
 
-        Ok(star)
+                Ok(star)
+            },
+            GameType::Starrail => {
+                let color_1 = Color::from(113, 119, 139);
+                let color_2 = Color::from(42, 143, 114);
+                let color_3 = Color::from(77, 133, 201);
+                let color_4 = Color::from(156, 102, 216);
+                let color_5 = Color::from(181, 141, 97);
+
+                let min_dis: u32 = color_1.dis_2(&color);
+                let mut star = 1_u32;
+                if color_2.dis_2(&color) < min_dis {
+                    star = 2;
+                }
+                if color_3.dis_2(&color) < min_dis {
+                    star = 3;
+                }
+                if color_4.dis_2(&color) < min_dis {
+                    star = 4;
+                }
+                if color_5.dis_2(&color) < min_dis {
+                    star = 5;
+                }
+
+                Ok(star)
+            }
+        }
     }
 
     fn create_dumps_folder(&self) -> Result<()> {
@@ -623,7 +663,7 @@ impl YasScanner {
         Ok(())
     }
 
-    pub fn mark(&mut self, shot: &Result<RawCaptureImage>) -> Result<()> {
+    pub fn mark(&mut self, shot: &mut RawCaptureImage) -> Result<()> {
         let a = |rect: &PixelRect| PixelRect {
             left: rect.left + self.info.panel_position.left,
             top: rect.top + self.info.panel_position.top,
@@ -640,10 +680,60 @@ impl YasScanner {
         shot.mark(&a(&self.info.sub_stat2_position), &mark_color, alpha)?;
         shot.mark(&a(&self.info.sub_stat3_position), &mark_color, alpha)?;
         shot.mark(&a(&self.info.sub_stat4_position), &mark_color, alpha)?;
+
+        shot.mark(&a(&self.info.sub_stat1_name_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat1_value_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat2_name_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat2_value_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat3_name_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat3_value_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat4_name_pos), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat4_value_pos), &mark_color, alpha)?;
+
         shot.mark(&a(&self.info.level_position), &mark_color, alpha)?;
         shot.mark(&a(&self.info.equip_position), &mark_color, alpha)?;
         shot.mark(&self.info.art_count_position.to_rect(), &mark_color, alpha)?;
-        shot.set_color(self.info.menu_x, self.info.menu_y, &mark_color)?;
+        // shot.set_color(self.info.menu_x, self.info.menu_y, &mark_color)?;
+        shot.mark(
+            &PixelRect {
+                left: (self.info.menu_x - 5) as i32,
+                top: (self.info.menu_y - 5) as i32,
+                width: 10,
+                height: 10,
+            },
+            &mark_color,
+            1.0
+        )?;
+        shot.mark(
+            &PixelRect {
+                left: (self.info.flag_x - 5) as i32,
+                top: (self.info.flag_y - 5) as i32,
+                width: 10,
+                height: 10,
+            },
+            &Color(0, 0, 255), // blue
+            1.0
+        )?;
+        shot.mark(
+            &PixelRect {
+                left: self.info.panel_position.left + self.info.star_x as i32 - 5,
+                top: self.info.panel_position.top + self.info.star_y as i32 - 5,
+                width: 10,
+                height: 10,
+            },
+            &Color(255, 255, 255), // white
+            1.0
+        )?;
+        shot.mark(
+            &PixelRect {
+                left: (self.info.lock_x - 5) as i32,
+                top: (self.info.lock_y - 5) as i32,
+                width: 10,
+                height: 10,
+            },
+            &Color(0, 255, 0), // green
+            1.0
+        )?;
         shot.mark(
             &PixelRect {
                 left: self.info.scrollbar_left as i32,
@@ -654,6 +744,37 @@ impl YasScanner {
             &mark_color,
             alpha,
         )?;
+        shot.mark(
+            &PixelRect {
+                left: self.info.ruler_left as i32,
+                top: self.info.ruler_top as i32,
+                width: 1,
+                height: self.info.ruler_height as i32,
+            },
+            &mark_color,
+            alpha,
+        )?;
+
+        for row in 0..self.info.art_row {
+            for col in 0..self.info.art_col {
+                shot.mark(
+                    &PixelRect {
+                        left: self.info.left
+                            + self.info.left_margin as i32
+                            + (self.info.art_shift_x * col as f64) as i32,
+                        top: self.info.top
+                            + self.info.top_margin as i32
+                            + (self.info.art_shift_y * row as f64) as i32,
+                        height: self.info.art_height as i32,
+                        width: self.info.art_width as i32
+                    },
+                    &mark_color,
+                    alpha
+                )?;
+            }
+        }
+
+        Ok(())
     }
 
     pub fn screenshot_and_mark(&mut self) -> Result<()> {
@@ -670,7 +791,7 @@ impl YasScanner {
         let mut shot = self.capture(&rect)?;
 
         // mark
-        self.mark(&shot);
+        let _ = self.mark(&mut shot);
         // save
         self.create_dumps_folder()?;
         shot.save(&format!(
@@ -694,7 +815,7 @@ impl YasScanner {
 
         let count = match self.get_art_count() {
             Ok(v) => v,
-            Err(_) => 1500,
+            Err(_) => 1800,
         };
 
         let total_row = (count + self.col - 1) / self.col;
@@ -859,6 +980,7 @@ impl YasScanner {
                     self.move_to(row, col);
                     self.enigo.mouse_click(MouseButton::Left);
 
+
                     let capture = self.wait_until_switched()?;
 
                     // capture
@@ -874,6 +996,7 @@ impl YasScanner {
                     let lock = locks[locks_idx];
                     locks_idx += 1;
 
+                    debug!("before send...");
                     tx.send(Some((capture, star, lock)))?;
 
                     scanned_count += 1;
@@ -912,7 +1035,244 @@ impl YasScanner {
     }
 
     pub fn scan_starrail(&mut self) -> Result<Vec<InternalRelic>> {
-        Ok(Vec::new())
+        // self.align_panel();
+        self.check_menu()?;
+        self.scroll_to_top()?;
+        self.get_scroll_speed()?;
+        self.screenshot_and_mark()?;
+
+        if self.config.capture_only {
+            self.start_capture_only()?;
+            return Ok(Vec::new());
+        }
+
+        let count = match self.get_art_count() {
+            Ok(v) => v,
+            Err(_) => 1500,
+        };
+
+        let total_row = (count + self.col - 1) / self.col;
+        let last_row_col = if count % self.col == 0 {
+            self.col
+        } else {
+            count % self.col
+        };
+
+        let (tx, rx) = mpsc::channel::<Option<(RawCaptureImage, u32, bool)>>();
+        let info_2 = self.info.clone();
+        // v bvvmnvbm
+        let is_dump_mode = self.config.dump_mode;
+        let min_level = self.config.min_level;
+        let game = self.config.game;
+        let handle = thread::spawn(move || -> Result<Vec<InternalRelic>> {
+            debug!("handle start...");
+            let mut results: Vec<InternalRelic> = Vec::new();
+            let model = CRNNModel::new(game)?;
+            let mut error_count = 0;
+            let mut dup_count = 0;
+            let mut hash = HashSet::new();
+            let mut consecutive_dup_count = 0;
+            let info = info_2;
+
+            let mut cnt = 0;
+            if is_dump_mode {
+                fs::create_dir("dumps")?;
+            }
+
+            debug!("Listening for rx...");
+            for i in rx {
+                debug!("rx received");
+                let (capture, rarity, lock) = match i {
+                    Some(v) => v,
+                    None => break,
+                };
+                // let now = SystemTime::now();
+
+                let model_inference = |pos: &PixelRect, name: &str, cnt: i32| -> Result<String> {
+                    let raw_img = capture.crop_to_raw_img(&pos);
+                    if is_dump_mode {
+                        raw_img
+                            .grayscale_to_gray_image()
+                            .save(format!("dumps/{}_{}.png", name, cnt))?;
+                    }
+
+                    let processed_img = pre_process(raw_img);
+
+                    if processed_img.w == 0 || processed_img.h == 0 {
+                        return Ok(String::from(""));
+                    }
+
+                    if is_dump_mode {
+                        processed_img
+                            .to_gray_image()
+                            .save(format!("dumps/p_{}_{}.png", name, cnt))?;
+                    }
+                    let inference_result = model.inference_string(&processed_img)?;
+                    if is_dump_mode {
+                        fs::write(format!("dumps/{}_{}.txt", name, cnt), &inference_result)?;
+                    }
+
+                    Ok(inference_result)
+                };
+
+                let str_title = model_inference(&info.title_position, "title", cnt)?;
+                let str_main_stat_name =
+                    model_inference(&info.main_stat_name_position, "main_stat_name", cnt)?;
+                let str_main_stat_value =
+                    model_inference(&info.main_stat_value_position, "main_stat_value", cnt)?;
+
+                let str_sub_stat_1_name = model_inference(&info.sub_stat1_name_pos, "sub_stat_1_name", cnt)?;
+                let str_sub_stat_1_value = model_inference(&info.sub_stat1_value_pos, "sub_stat_1_value", cnt)?;
+                let str_sub_stat_2_name = model_inference(&info.sub_stat2_name_pos, "sub_stat_2_name", cnt)?;
+                let str_sub_stat_2_value = model_inference(&info.sub_stat2_value_pos, "sub_stat_2_value", cnt)?;
+                let str_sub_stat_3_name = model_inference(&info.sub_stat3_name_pos, "sub_stat_3_name", cnt)?;
+                let str_sub_stat_3_value = model_inference(&info.sub_stat3_value_pos, "sub_stat_3_value", cnt)?;
+                let str_sub_stat_4_name = model_inference(&info.sub_stat4_name_pos, "sub_stat_4_name", cnt)?;
+                let str_sub_stat_4_value = model_inference(&info.sub_stat4_value_pos, "sub_stat_4_value", cnt)?;
+
+                let str_level = model_inference(&info.level_position, "level", cnt)?;
+                // let str_equip = model_inference(&info.equip_position, "equip", cnt)?;
+
+                cnt += 1;
+
+                // let predict_time = now.elapsed().unwrap().as_millis();
+                // println!("predict time: {}ms", predict_time);
+
+                let result = YasScanResult {
+                    name: str_title,
+                    main_stat_name: str_main_stat_name,
+                    main_stat_value: str_main_stat_value,
+                    sub_stat_1: str_sub_stat_1_name + "+" + &str_sub_stat_1_value,
+                    sub_stat_2: str_sub_stat_2_name + "+" + &str_sub_stat_2_value,
+                    sub_stat_3: str_sub_stat_3_name + "+" + &str_sub_stat_3_value,
+                    sub_stat_4: str_sub_stat_4_name + "+" + &str_sub_stat_4_value,
+                    level: str_level,
+                    location: String::new(),
+                    rarity,
+                    lock,
+                };
+                debug!("{:?}", result);
+                // println!("{:?}", result);
+                let art = result.to_internal_relic();
+                if let Some(a) = art {
+                    if hash.contains(&a) {
+                        dup_count += 1;
+                        consecutive_dup_count += 1;
+                        warn!("dup artifact detected: {:?}", result);
+                    } else {
+                        consecutive_dup_count = 0;
+                        hash.insert(a.clone());
+                        // results.push(a);
+                    }
+                    results.push(a);
+                } else {
+                    error!("wrong detection: {:?}", result);
+                    error_count += 1;
+                    // println!("error parsing results");
+                }
+                if consecutive_dup_count >= info.art_row {
+                    error!("检测到连续多个重复圣遗物，可能为翻页错误，或者为非背包顶部开始扫描");
+                    break;
+                }
+            }
+
+            info!("error count: {}", error_count);
+            info!("dup count: {}", dup_count);
+
+            Ok(if min_level > 0 {
+                results
+                    .into_iter()
+                    .filter(|result| result.level >= min_level)
+                    .collect::<Vec<_>>()
+            } else {
+                results
+            })
+        });
+
+        let mut scanned_row = 0_u32;
+        let mut scanned_count = 0_u32;
+        let mut start_row = 0_u32;
+        // let mut lock = false;
+
+        // self.move_to(0, 0);
+        // self.enigo.mouse_click(MouseButton::Left);
+        // utils::sleep(1000);
+        // self.sample_initial_color();
+        // let mut now = SystemTime::now();
+
+        'outer: while scanned_count < count {
+            let locks = self.get_locks(start_row, true, self.config.mark)?;
+            // println!("{}ms got locks", now.elapsed()?.as_millis());
+            // now = SystemTime::now();
+            let mut locks_idx: usize = 0;
+            for row in start_row..self.row {
+                let c = if scanned_row == total_row - 1 {
+                    last_row_col
+                } else {
+                    self.col
+                };
+                for col in 0..c {
+                    // 右键终止
+                    if utils::is_rmb_down() {
+                        break 'outer;
+                    }
+
+                    self.move_to(row, col);
+                    self.enigo.mouse_click(MouseButton::Left);
+
+                    debug!("before wait_until_switched...");
+                    let capture = self.wait_until_switched()?;
+                    debug!("after wait_until_switched...");
+
+                    // capture
+                    //     .save(&format!("dumps/art_{}.png", scanned_count + 1))
+                    //     .expect("save image error");
+
+                    let star = self.get_star(&capture)?;
+                    if star < self.config.min_star {
+                        break 'outer;
+                    }
+
+                    // lock = self.get_lock(lock);
+                    let lock = locks[locks_idx];
+                    locks_idx += 1;
+
+                    debug!("before send...");
+                    tx.send(Some((capture, star, lock)))?;
+                    debug!("after send...");
+                    scanned_count += 1;
+
+                    // 大于最大数量则退出
+                    if scanned_count >= count {
+                        break 'outer;
+                    }
+                } // end 'col
+
+                // info!("{:?}", locks);
+                scanned_row += 1;
+
+                if scanned_row >= self.config.max_row {
+                    info!("max row reached, quiting...");
+                    break 'outer;
+                }
+            } // end 'row
+
+            let remain = count - scanned_count;
+            let remain_row = (remain + self.col - 1) / self.col;
+            let scroll_row = remain_row.min(self.row);
+            start_row = self.row - scroll_row;
+            self.scroll_rows(scroll_row)?;
+            // println!("{}ms scrolled", now.elapsed()?.as_millis());
+            // now = SystemTime::now();
+        }
+
+        tx.send(None)?;
+
+        info!("扫描结束，等待识别线程结束，请勿关闭程序");
+        let results: Vec<InternalRelic> =
+            handle.join().map_err(|_| anyhow!("thread join err"))??;
+        info!("count: {}", results.len());
+        Ok(results)
     }
 
     pub fn lock(&mut self, actions: Vec<LockAction>) -> Result<()> {
@@ -1045,48 +1405,6 @@ impl YasScanner {
             start_row = self.row - to_scroll_rows;
         }
 
-        Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::common::{PixelRect, RawCaptureImage};
-    use crate::info::info::ScanInfo;
-    use crate::scanner::config::YasScannerConfig;
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::*;
-
-    #[test]
-    fn test_mark() -> anyhow::Result<()> {
-        let rect = PixelRect { left: 0, top: 0, width: 1920, height: 1080 };
-        let info = ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
-        let config = YasScannerConfig {
-            max_row: 1000,
-            capture_only: false,
-            min_star: 5,
-            min_level: 0,
-            max_wait_switch_artifact: 0,
-            scroll_stop: 0,
-            number: 0,
-            dump_mode: false,
-            speed: 1,
-            no_check: false,
-            max_wait_scroll: 0,
-            mark: true,
-            dxgcap: false,
-            default_stop: 0,
-            yun: false,
-            scroll_speed: 0.0,
-            lock_stop: 0,
-            max_wait_lock: 0,
-            game: crate::scanner::config::GameType::Genshin
-        };
-        let mut scanner = crate::scanner::yas_scanner::YasScanner::new(info, config);
-        let img = RawCaptureImage::load("test.png")?;
-        scanner.mark(img);
-        img.save("text_marked.png");
-        assert_eq!(1, 1);
         Ok(())
     }
 }

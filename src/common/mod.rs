@@ -155,9 +155,9 @@ impl RawCaptureImage {
 
         for y in 0..h {
             for x in 0..w {
-                let pixel = img.get_pixel(x, y).0;
+                let pixel = img.get_pixel(x, h - 1 - y).0;
                 // 将像素按照 save 方法中的格式存储：[B, G, R]
-                data.extend_from_slice(&[pixel[2], pixel[1], pixel[0]]);
+                data.extend_from_slice(&[pixel[2], pixel[1], pixel[0], pixel[3]]);
             }
         }
 

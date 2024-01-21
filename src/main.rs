@@ -12,7 +12,7 @@ use log::{error, info, LevelFilter};
 use serde_json::to_string;
 
 use yas::lock::LockAction;
-use yas::common::utils;
+use yas::common::{PixelRect, RawCaptureImage, utils};
 use yas::common::cli::get_cli;
 use yas::ws::server::run_ws;
 
@@ -31,6 +31,12 @@ use yas::scanner::yas_scanner::YasScanner;
 
 fn main() {
     let matches = get_cli().get_matches();
+
+    let test = false;
+    if test {
+        let _ = test_mark();
+        return
+    }
 
     Builder::new()
         .filter_level(LevelFilter::Info)
@@ -193,16 +199,38 @@ fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
         rect.left, rect.top, rect.width, rect.height
     );
 
-    let info: ScanInfo;
-    if rect.height * 16 == rect.width * 9 {
-        info = ScanInfo::from_16_9(rect.width as u32, rect.height as u32, rect.left, rect.top);
-    } else if rect.height * 8 == rect.width * 5 {
-        info = ScanInfo::from_8_5(rect.width as u32, rect.height as u32, rect.left, rect.top);
-    } else if rect.height * 4 == rect.width * 3 {
-        info = ScanInfo::from_4_3(rect.width as u32, rect.height as u32, rect.left, rect.top);
-    } else {
-        return Err(anyhow!("不支持的分辨率"));
-    }
-
+    let info = ScanInfo::from_rect(&rect, game_type).unwrap();
     Ok(info)
+}
+
+fn test_mark() -> Result<()> {
+    // let rect = PixelRect { left: 0, top: 0, width: 1600, height: 900 };
+    let rect = PixelRect { left: 0, top: 0, width: 1920, height: 1080 };
+    let info = ScanInfo::from_rect(&rect, GameType::Genshin).unwrap();
+    let config = YasScannerConfig {
+        max_row: 1000,
+        capture_only: false,
+        min_star: 5,
+        min_level: 0,
+        max_wait_switch_artifact: 0,
+        scroll_stop: 0,
+        number: 0,
+        dump_mode: false,
+        speed: 1,
+        no_check: false,
+        max_wait_scroll: 0,
+        mark: true,
+        dxgcap: false,
+        default_stop: 0,
+        yun: false,
+        scroll_speed: 0.0,
+        lock_stop: 0,
+        max_wait_lock: 0,
+        game: GameType::Genshin
+    };
+    let mut scanner = YasScanner::new(info, config)?;
+    let mut img = RawCaptureImage::load("test_genshin.png")?;
+    let _ = scanner.mark(&mut img);
+    let _ = img.save("text_genshin_marked.png");
+    Ok(())
 }
