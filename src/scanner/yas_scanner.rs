@@ -918,7 +918,7 @@ impl YasScanner {
                     if hash.contains(&a) {
                         dup_count += 1;
                         consecutive_dup_count += 1;
-                        warn!("dup artifact detected: {:?}", result);
+                        warn!("dup artifact detected at {}: {:?}", cnt - 1, result);
                     } else {
                         consecutive_dup_count = 0;
                         hash.insert(a.clone());
@@ -926,7 +926,7 @@ impl YasScanner {
                     }
                     results.push(a);
                 } else {
-                    error!("wrong detection: {:?}", result);
+                    error!("wrong detection at {}: {:?}", cnt - 1, result);
                     error_count += 1;
                     // println!("error parsing results");
                 }

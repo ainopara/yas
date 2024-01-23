@@ -32,10 +32,10 @@ use yas::scanner::yas_scanner::YasScanner;
 fn main() {
     let matches = get_cli().get_matches();
 
-    let test = false;
+    let test = true;
     if test {
         let _ = test_mark();
-        return
+        // return
     }
 
     Builder::new()

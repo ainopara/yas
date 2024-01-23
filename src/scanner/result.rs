@@ -91,6 +91,7 @@ impl YasScanResult {
             slot,
             star,
             level,
+            lock: self.lock,
             main_stat,
             sub_stat_1: sub1,
             sub_stat_2: sub2,

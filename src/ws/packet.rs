@@ -29,7 +29,7 @@ pub struct ScanReqData {
 pub struct ScanRspData {
     pub success: bool,
     pub message: String,
-    pub good_json: String,
+    pub json: String,
 }
 
 impl ScanRspData {
@@ -38,12 +38,12 @@ impl ScanRspData {
             Ok(arts) => ScanRspData {
                 success: true,
                 message: String::from(""),
-                good_json: arts,
+                json: arts,
             },
             Err(e) => ScanRspData {
                 success: false,
                 message: e.to_string(),
-                good_json: String::from(""),
+                json: String::from(""),
             },
         })
     }

@@ -116,7 +116,7 @@ impl<'a> Serialize for HoodRelic<'a> {
         root.serialize_entry("slotKey", &self.relic.slot.to_hood())?;
         root.serialize_entry("level", &self.relic.level)?;
         root.serialize_entry("rarity", &self.relic.star)?;
-        root.serialize_entry("lock", &false)?;
+        root.serialize_entry("lock", &self.relic.lock)?;
         root.serialize_entry("mainStatKey", &self.relic.main_stat.name.to_hood())?;
         root.serialize_entry("mainTag", &self.relic.main_stat)?;
 
