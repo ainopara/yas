@@ -24,7 +24,7 @@ pub struct LockFormatV2 {
 
 // internal format
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum LockActionType {
     ValidateLocked,
     ValidateUnlocked,

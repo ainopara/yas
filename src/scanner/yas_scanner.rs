@@ -221,9 +221,9 @@ impl YasScanner {
             }
         }
 
-        if self.config.mark {
-            shot.save(&format!("dumps/pool_{}.png", pool))?;
-        }
+        // if self.config.mark {
+        //     shot.save(&format!("dumps/pool_{}.png", pool))?;
+        // }
 
         Ok(pool)
     }
@@ -469,7 +469,7 @@ impl YasScanner {
 
         // return Err(anyhow!("加解锁超时"));
 
-        warn!("加解锁超时 (time: {} ms)", now.elapsed()?.as_millis());
+        warn!("加解锁超时 (time: {} ms) scrolled_row: {} row: {} index: {} should_be_locked: {}", now.elapsed()?.as_millis(), self.scrolled_rows, start_row, index, should_be_locked);
 
         Ok(())
     }
@@ -996,7 +996,7 @@ impl YasScanner {
                     let lock = locks[locks_idx];
                     locks_idx += 1;
 
-                    debug!("before send...");
+                    info!("before send {} lock: {}", scanned_count, lock);
                     tx.send(Some((capture, star, lock)))?;
 
                     scanned_count += 1;
@@ -1225,9 +1225,9 @@ impl YasScanner {
                     let capture = self.wait_until_switched()?;
                     debug!("after wait_until_switched...");
 
-                    // capture
-                    //     .save(&format!("dumps/art_{}.png", scanned_count + 1))
-                    //     .expect("save image error");
+                    capture
+                        .save(&format!("dumps/art_{}.png", scanned_count + 1))
+                        .expect("save image error");
 
                     let star = self.get_star(&capture)?;
                     if star < self.config.min_star {
@@ -1238,9 +1238,8 @@ impl YasScanner {
                     let lock = locks[locks_idx];
                     locks_idx += 1;
 
-                    debug!("before send...");
+                    info!("before send {} lock: {}", scanned_count + 1, lock);
                     tx.send(Some((capture, star, lock)))?;
-                    debug!("after send...");
                     scanned_count += 1;
 
                     // 大于最大数量则退出
@@ -1272,7 +1271,7 @@ impl YasScanner {
         info!("扫描结束，等待识别线程结束，请勿关闭程序");
         let results: Vec<InternalRelic> =
             handle.join().map_err(|_| anyhow!("thread join err"))??;
-        info!("count: {}", results.len());
+        info!("count: {} scanned_count: {}", results.len(), scanned_count);
         Ok(results)
     }
 
@@ -1302,16 +1301,31 @@ impl YasScanner {
 
         // I don't know why, but it has to sleep awhile before taking the first capture,
         // otherwise the pool would be slightly different from the true value
-        utils::sleep(1000);
+        info!("Sleeping for 10s...");
+        utils::sleep(10000);
+        info!("Finish sleeping.");
 
         // 如果不给第一个圣遗物加解锁，必须记录它的pool值
         // 以免wait_until_switched出错
-        if actions[0].target != 0 {
+        let first_action_index = actions[0].target;
+        let first_action_type = actions[0].type_;
+        let locks = self.get_locks(start_row, true, self.config.mark)?;
+        if first_action_index != 0 ||
+            !(
+                first_action_index == 0 &&
+                (
+                    (first_action_type == LockActionType::Lock && locks[0] == false) ||
+                    (first_action_type == LockActionType::Unlock && locks[0] == true) ||
+                    first_action_type == LockActionType::Flip
+                )
+            ) {
+
+            info!("Recording current pool...");
             let shot = self.capture_panel()?;
             self.pool = self.get_pool(&shot)?;
         }
 
-        trace!("initial pool: {}", self.pool);
+        info!("initial pool: {}", self.pool);
 
         // loop over pages
         'outer: while end_action < actions.len() {
