@@ -259,8 +259,8 @@ pub const WINDOW_16_9_STARRAIL: WindowInfo = WindowInfo {
     star_x: 383.0,
     star_y: 38.0,
 
-    lock_x: 1510.0,
-    lock_y: 271.0,
+    lock_x: 1512.0,
+    lock_y: 230.0,
 
     art_lock_x: 89.0,
     art_lock_y: 72.0,

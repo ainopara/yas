@@ -34,7 +34,8 @@ fn main() {
 
     let test = true;
     if test {
-        let _ = test_mark();
+        let _ = test_mark_genshin();
+        let _ = test_mark_starrail();
         // return
     }
 
@@ -203,9 +204,9 @@ fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
     Ok(info)
 }
 
-fn test_mark() -> Result<()> {
-    // let rect = PixelRect { left: 0, top: 0, width: 1600, height: 900 };
-    let rect = PixelRect { left: 0, top: 0, width: 1920, height: 1080 };
+fn test_mark_genshin() -> Result<()> {
+    let mut img = RawCaptureImage::load("test_genshin.png")?;
+    let rect = PixelRect { left: 0, top: 0, width: img.w as i32, height: img.h as i32 };
     let info = ScanInfo::from_rect(&rect, GameType::Genshin).unwrap();
     let config = YasScannerConfig {
         max_row: 1000,
@@ -229,8 +230,38 @@ fn test_mark() -> Result<()> {
         game: GameType::Genshin
     };
     let mut scanner = YasScanner::new(info, config)?;
-    let mut img = RawCaptureImage::load("test_genshin.png")?;
     let _ = scanner.mark(&mut img);
     let _ = img.save("text_genshin_marked.png");
+    Ok(())
+}
+
+fn test_mark_starrail() -> Result<()> {
+    let mut img = RawCaptureImage::load("test_starrail.png")?;
+    let rect = PixelRect { left: 0, top: 0, width: img.w as i32, height: img.h as i32 };
+    let info = ScanInfo::from_rect(&rect, GameType::Starrail).unwrap();
+    let config = YasScannerConfig {
+        max_row: 1000,
+        capture_only: false,
+        min_star: 5,
+        min_level: 0,
+        max_wait_switch_artifact: 0,
+        scroll_stop: 0,
+        number: 0,
+        dump_mode: false,
+        speed: 1,
+        no_check: false,
+        max_wait_scroll: 0,
+        mark: true,
+        dxgcap: false,
+        default_stop: 0,
+        yun: false,
+        scroll_speed: 0.0,
+        lock_stop: 0,
+        max_wait_lock: 0,
+        game: GameType::Starrail
+    };
+    let mut scanner = YasScanner::new(info, config)?;
+    let _ = scanner.mark(&mut img);
+    let _ = img.save("text_starrail_marked.png");
     Ok(())
 }

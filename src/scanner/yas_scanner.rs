@@ -1271,7 +1271,7 @@ impl YasScanner {
         info!("扫描结束，等待识别线程结束，请勿关闭程序");
         let results: Vec<InternalRelic> =
             handle.join().map_err(|_| anyhow!("thread join err"))??;
-        info!("count: {} scanned_count: {}", results.len(), scanned_count);
+        info!("result_count: {} scanned_count: {}", results.len(), scanned_count);
         Ok(results)
     }
 
@@ -1301,8 +1301,8 @@ impl YasScanner {
 
         // I don't know why, but it has to sleep awhile before taking the first capture,
         // otherwise the pool would be slightly different from the true value
-        info!("Sleeping for 10s...");
-        utils::sleep(10000);
+        info!("Sleeping for 3s...");
+        utils::sleep(3000);
         info!("Finish sleeping.");
 
         // 如果不给第一个圣遗物加解锁，必须记录它的pool值
