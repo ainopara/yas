@@ -23,6 +23,7 @@ use yas::expo::good::GoodFormat;
 use yas::expo::mona::MonaFormat;
 use yas::expo::march7th::March7thFormat;
 use yas::expo::hood::HoodFormat;
+use yas::expo::srod::SRODFormat;
 use yas::scanner::config::GameType;
 use yas::info::info::ScanInfo;
 use yas::scanner::config::YasScannerConfig;
@@ -139,14 +140,13 @@ fn do_scan(matches: ArgMatches) -> Result<String> {
             let hood = HoodFormat::new(&results);
             hood.save(String::from(output_filename.to_str().unwrap()));
 
-            Ok(to_string(&HoodFormat::new(&results))?)
+            let output_filename = output_dir.join("srod.json");
+            let srod = SRODFormat::new(&results);
+            srod.save(String::from(output_filename.to_str().unwrap()));
+
+            Ok(to_string(&SRODFormat::new(&results))?)
         }
     }
-
-
-
-
-
 }
 
 #[cfg(not(windows))]
