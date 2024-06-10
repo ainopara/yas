@@ -87,6 +87,8 @@ pub enum ArtifactSetKey {
     GoldenTroupe,
     SongOfDaysPast,
     NighttimeWhispersInTheEchoingWoods,
+    FragmentOfHarmonicWhimsy,
+    UnfinishedReverie,
 }
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq, Display)]
@@ -533,7 +535,8 @@ impl ArtifactSetKey {
             "慈爱的淑女帽" | "诚恳的蘸水笔" | "无私的妆饰花" | "忠实的砂时计" | "慷慨的墨水瓶" => {
                 Some(ArtifactSetKey::NighttimeWhispersInTheEchoingWoods)
             }
-
+            "异想零落的圆舞" | "古海玄幽的夜想" | "谐律交响的前奏" | "命途轮转的谐谑" | "灵露倾洒的狂诗" => Some(ArtifactSetKey::FragmentOfHarmonicWhimsy),
+            "失冕的宝冠" | "褪光的翠尾" | "暗结的明花" | "举业的识刻" | "筹谋的共樽" => Some(ArtifactSetKey::UnfinishedReverie),
             _ => None,
         }
     }
@@ -777,6 +780,16 @@ impl ArtifactSlotKey {
             "无私的妆饰花" => Some(ArtifactSlotKey::Flower),
             "忠实的砂时计" => Some(ArtifactSlotKey::Sands),
             "慷慨的墨水瓶" => Some(ArtifactSlotKey::Goblet),
+            "异想零落的圆舞" => Some(ArtifactSlotKey::Circlet),
+            "古海玄幽的夜想" => Some(ArtifactSlotKey::Plume),
+            "谐律交响的前奏" => Some(ArtifactSlotKey::Flower),
+            "命途轮转的谐谑" => Some(ArtifactSlotKey::Sands),
+            "灵露倾洒的狂诗" => Some(ArtifactSlotKey::Goblet),
+            "失冕的宝冠" => Some(ArtifactSlotKey::Circlet),
+            "褪光的翠尾" => Some(ArtifactSlotKey::Plume),
+            "暗结的明花" => Some(ArtifactSlotKey::Flower),
+            "举业的识刻" => Some(ArtifactSlotKey::Sands),
+            "筹谋的共樽" => Some(ArtifactSlotKey::Goblet),
             _ => None,
         }
     }

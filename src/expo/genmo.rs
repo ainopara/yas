@@ -131,6 +131,9 @@ impl ArtifactSetKey {
             ArtifactSetKey::NighttimeWhispersInTheEchoingWoods => {
                 "nighttime_whispers_in_the_echoing_woods"
             }
+            ArtifactSetKey::FragmentOfHarmonicWhimsy => "TODO",
+            ArtifactSetKey::UnfinishedReverie => "TODO",
+            
             // Not supported by Mingyulab
             ArtifactSetKey::Adventurer => unreachable!(),
             ArtifactSetKey::LuckyDog => unreachable!(),

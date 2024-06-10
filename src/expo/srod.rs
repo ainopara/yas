@@ -43,40 +43,10 @@ impl RelicStatName {
 
 impl RelicSetName {
     pub fn to_srod(&self) -> String {
-        let same = self.to_string();
-        let temp = match self {
-            RelicSetName::PasserbyofWanderingCloud => "PasserbyOfWanderingCloud",
-            RelicSetName::MusketeerofWildWheat => "MusketeerOfWildWheat",
-            RelicSetName::KnightofPurityPalace => "KnightOfPurityPalace",
-            RelicSetName::HunterofGlacialForest => "HunterOfGlacialForest",
-            RelicSetName::ChampionofStreetwiseBoxing => "ChampionOfStreetwiseBoxing",
-            RelicSetName::GuardofWutheringSnow => "GuardOfWutheringSnow",
-            RelicSetName::FiresmithofLavaForging => "FiresmithOfLavaForging",
-            RelicSetName::GeniusofBrilliantStars => "GeniusOfBrilliantStars",
-            RelicSetName::BandofSizzlingThunder => "BandOfSizzlingThunder",
-            RelicSetName::EagleofTwilightLine => "EagleOfTwilightLine",
-            RelicSetName::ThiefofShootingMeteor => "ThiefOfShootingMeteor",
-            RelicSetName::WastelanderofBanditryDesert => "WastelanderOfBanditryDesert",
-            RelicSetName::SpaceSealingStation => "SpaceSealingStation",
-            RelicSetName::FleetoftheAgeless => "FleetOfTheAgeless",
-            RelicSetName::PanCosmicCommercialEnterprise => "PanGalacticCommercialEnterprise",
-            RelicSetName::BelobogoftheArchitects => "BelobogOfTheArchitects",
-            RelicSetName::CelestialDifferentiator => "CelestialDifferentiator",
-            RelicSetName::InertSalsotto => "InertSalsotto",
-            RelicSetName::TaliaKingdomofBanditry => "TaliaKingdomOfBanditry",
-            RelicSetName::SprightlyVonwacq => "SprightlyVonwacq",
-            RelicSetName::RutilantArena => "RutilantArena",
-            RelicSetName::BrokenKeel => "BrokenKeel",
-            RelicSetName::LongevousDisciple => "LongevousDisciple",
-            RelicSetName::MessengerTraversingHackerspace => "MessengerTraversingHackerspace",
-            RelicSetName::PioneerDiverofDeadWaters => "PioneerDiverOfDeadWaters",
-            RelicSetName::PrisonerinDeepConfinement => "PrisonerInDeepConfinement",
-            RelicSetName::TheAshblazingGrandDuke => "TheAshblazingGrandDuke",
-            RelicSetName::WatchmakerMasterofDreamMachinations => "WatchmakerMasterOfDreamMachinations",
-            RelicSetName::FirmamentFrontlineGlamoth => "FirmamentFrontlineGlamoth",
-            RelicSetName::PenaconyLandoftheDreams => "PenaconyLandOfTheDreams",
-        };
-        String::from(temp)
+        match self {
+            RelicSetName::PanCosmicCommercialEnterprise => String::from("PanGalacticCommercialEnterprise"),
+            _ => self.to_string()
+        }
     }
 }
 
@@ -176,7 +146,7 @@ impl<'a> SRODFormat<'a> {
 
 
         SRODFormat {
-            format: String::from("HOOD"),
+            format: String::from("SROD"),
             version: 1,
             source: String::from("yas-lock"),
             relics
