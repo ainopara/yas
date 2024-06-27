@@ -1292,7 +1292,7 @@ impl YasScanner {
         let mut end_action: usize = 0;
         let mut start_art;
         let mut end_art;
-        let total_arts: u32 = self.get_art_count().unwrap_or(1500);
+        let total_arts: u32 = self.get_art_count().unwrap_or(2000);
         let total_rows: u32 = (total_arts + self.col - 1) / self.col;
 
         if actions[actions.len() - 1].target > total_arts {
