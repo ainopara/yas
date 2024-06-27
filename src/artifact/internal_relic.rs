@@ -75,6 +75,8 @@ pub enum RelicSetName {
     BrokenKeel,  // 折断的龙骨
     FirmamentFrontlineGlamoth,  // 苍穹战线格拉默
     PenaconyLandoftheDreams,  // 梦想之地匹诺康尼
+    SigoniatheUnclaimedDesolation,  // 无主荒星茨冈尼亚
+    IzumoGenseiandTakamaDivineRealm,  // 出云显世与高天神国
     DuranDynastyofRunningWolves,  // 奔狼的都蓝王朝
     ForgeoftheKalpagniLantern,  // 劫火莲灯铸炼宫
 }
@@ -321,6 +323,12 @@ lazy_static! {
         // 梦想之地匹诺康尼 - Version 1.5
         m.insert("匹诺康尼的堂皇饭店", (RelicSetName::PenaconyLandoftheDreams, RelicSlot::PlanarSphere));
         m.insert("匹诺康尼的逐梦轨道", (RelicSetName::PenaconyLandoftheDreams, RelicSlot::LinkRope));
+        // 无主荒星茨冈尼亚 - Version 2.1
+        m.insert("茨冈尼亚的轮回纽结", (RelicSetName::SigoniatheUnclaimedDesolation, RelicSlot::PlanarSphere));
+        m.insert("茨冈尼亚的母神卧榻", (RelicSetName::SigoniatheUnclaimedDesolation, RelicSlot::LinkRope));
+        // 出云显世与高天神国 - Version 2.1
+        m.insert("出云的终始一刀", (RelicSetName::IzumoGenseiandTakamaDivineRealm, RelicSlot::PlanarSphere));
+        m.insert("出云的祸津众神", (RelicSetName::IzumoGenseiandTakamaDivineRealm, RelicSlot::LinkRope));
         // 奔狼的都蓝王朝 - Version 2.3
         m.insert("都蓝的器兽缰辔", (RelicSetName::DuranDynastyofRunningWolves, RelicSlot::PlanarSphere));
         m.insert("都蓝的穹窿金帐", (RelicSetName::DuranDynastyofRunningWolves, RelicSlot::LinkRope));
