@@ -1,6 +1,5 @@
 use regex::Regex;
 use std::hash::{Hash, Hasher};
-use edit_distance;
 use log::error;
 use strum_macros::Display;
 use std::collections::HashMap;
@@ -31,7 +30,7 @@ pub enum RelicStatName {
     EffectRES,
 }
 
-#[derive(Debug, Hash, Clone, PartialEq, Eq)]
+#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq)]
 pub enum RelicSlot {
     Head,
     Hands,
@@ -41,7 +40,7 @@ pub enum RelicSlot {
     LinkRope,
 }
 
-#[derive(Debug, Hash, Clone, PartialEq, Eq)]
+#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq)]
 #[derive(Display)]
 pub enum RelicSetName {
     PasserbyofWanderingCloud,  // 云无留迹的过客
