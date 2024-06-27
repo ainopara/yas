@@ -43,10 +43,7 @@ impl RelicStatName {
 
 impl RelicSetName {
     pub fn to_srod(&self) -> String {
-        match self {
-            RelicSetName::PanCosmicCommercialEnterprise => String::from("PanGalacticCommercialEnterprise"),
-            _ => self.to_string()
-        }
+        self.to_string()
     }
 }
 

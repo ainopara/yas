@@ -3,6 +3,8 @@ use std::hash::{Hash, Hasher};
 use edit_distance;
 use log::error;
 use strum_macros::Display;
+use std::collections::HashMap;
+use lazy_static::lazy_static;
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub enum RelicStatName {
@@ -60,6 +62,8 @@ pub enum RelicSetName {
     PrisonerinDeepConfinement,  // 幽锁深牢的系囚
     PioneerDiverofDeadWaters,  // 死水深潜的先驱
     WatchmakerMasterofDreamMachinations,  // 机心戏梦的钟表匠
+    IronCavalryAgainsttheScourge,  // 荡除蠹灾的铁骑
+    TheWindSoaringValorous,  // 风举云飞的勇烈
     SpaceSealingStation,  // 太空封印站
     FleetoftheAgeless,  // 不老者的仙舟
     PanCosmicCommercialEnterprise,  // 泛银河商业公司
@@ -72,6 +76,8 @@ pub enum RelicSetName {
     BrokenKeel,  // 折断的龙骨
     FirmamentFrontlineGlamoth,  // 苍穹战线格拉默
     PenaconyLandoftheDreams,  // 梦想之地匹诺康尼
+    DuranDynastyofRunningWolves,  // 奔狼的都蓝王朝
+    ForgeoftheKalpagniLantern,  // 劫火莲灯铸炼宫
 }
 
 #[derive(Debug, Clone)]
@@ -177,119 +183,163 @@ impl RelicStat {
     }
 }
 
-pub fn get_real_relic_name_chs(raw: &str) -> Option<String> {
-    let all_relic_chs = [
-        "过客的逢春木簪", "过客的游龙臂鞲", "过客的残绣风衣", "过客的冥途游履",        
-        "快枪手的野穗毡帽", "快枪手的粗革手套", "快枪手的猎风披肩", "快枪手的铆钉马靴",
-        "圣骑的宽恕盔面", "圣骑的沉默誓环", "圣骑的肃穆胸甲", "圣骑的秩序铁靴",
-        "雪猎的荒神兜帽", "雪猎的巨蜥手套", "雪猎的冰龙披风", "雪猎的鹿皮软靴",
-        "拳王的冠军护头", "拳王的重炮拳套", "拳王的贴身护胸", "拳王的弧步战靴",
-        "铁卫的铸铁面盔", "铁卫的银鳞手甲", "铁卫的旧制军服", "铁卫的白银护胫",
-        "火匠的黑耀目镜", "火匠的御火戒指", "火匠的阻燃围裙", "火匠的合金义肢",
-        "天才的超距遥感", "天才的频变捕手", "天才的元域深潜", "天才的引力漫步",        
-        "乐队的偏光墨镜", "乐队的巡演手绳", "乐队的钉刺皮衣", "乐队的铆钉短靴",
-        "翔鹰的长喙头盔", "翔鹰的鹰击指环", "翔鹰的翼装束带", "翔鹰的绒羽绑带",
-        "怪盗的千人假面", "怪盗的绘纹手套", "怪盗的纤钢爪钩", "怪盗的流星快靴",
-        "废土客的呼吸面罩", "废土客的荒漠终端", "废土客的修士长袍", "废土客的动力腿甲",
-        "「黑塔」的空间站点", "「黑塔」的漫历轨迹",
-        "罗浮仙舟的天外楼船", "罗浮仙舟的建木枝蔓",
-        "公司的巨构总部", "公司的贸易航道",
-        "贝洛伯格的存护堡垒", "贝洛伯格的铁卫防线",
-        "螺丝星的机械烈阳", "螺丝星的环星孔带",
-        "萨尔索图的移动城市", "萨尔索图的晨昏界线",
-        "塔利亚的钉壳小镇", "塔利亚的裸皮电线",
-        "翁瓦克的诞生之岛", "翁瓦克的环岛海岸",
-        "泰科铵的镭射球场", "泰科铵的弧光赛道",
-        "伊须磨洲的残船鲸落", "伊须磨洲的坼裂缆索",
-        "莳者的复明义眼", "莳者的机巧木手", "莳者的承露羽衣", "莳者的天人丝履",
-        "信使的全息目镜", "信使的百变义手", "信使的密信挎包", "信使的酷跑板鞋",
-        "大公的冥焰冠冕", "大公的绒火指套", "大公的蒙恩长袍", "大公的绅雅礼靴",
-        "系囚的合啮拘笼", "系囚的铅石梏铐", "系囚的幽闭缚束", "系囚的绝足锁桎",
-        "格拉默的寂静坟碑", "格拉默的铁骑兵团",
-        "匹诺康尼的逐梦轨道", "匹诺康尼的堂皇酒店",
-        "先驱的绝热围壳", "先驱的虚极罗盘", "先驱的密合铅衣", "先驱的泊星桩锚",
-        "钟表匠的极目透镜", "钟表匠的交运腕表", "钟表匠的空幻礼服", "钟表匠的隐梦革履"
-    ];
-
-    let mut min_index = 0;
-    let mut min_dis = edit_distance::edit_distance(raw, all_relic_chs[0]);
-    let mut same_flag = false;
-    for (i, &val) in all_relic_chs.iter().enumerate().skip(1) {
-        let dis = edit_distance::edit_distance(val, raw);
-        if dis < min_dis {
-            min_dis = dis;
-            min_index = i;
-            same_flag = false;
-        } else if dis == min_dis {
-            same_flag = true;
-        }
-    }
-
-    if same_flag {
-        None
-    } else {
-        Some(String::from(all_relic_chs[min_index]))
-    }
+lazy_static! {
+    static ref RELIC_INFO: HashMap<&'static str, (RelicSetName, RelicSlot)> = {
+        let mut m = HashMap::new();
+        // 云无留迹的过客 - Version 1.0
+        m.insert("过客的逢春木簪", (RelicSetName::PasserbyofWanderingCloud, RelicSlot::Head));
+        m.insert("过客的游龙臂鞲", (RelicSetName::PasserbyofWanderingCloud, RelicSlot::Hands));
+        m.insert("过客的残绣风衣", (RelicSetName::PasserbyofWanderingCloud, RelicSlot::Body));
+        m.insert("过客的冥途游履", (RelicSetName::PasserbyofWanderingCloud, RelicSlot::Feet));
+        // 野穗伴行的快枪手 - Version 1.0
+        m.insert("快枪手的野穗毡帽", (RelicSetName::MusketeerofWildWheat, RelicSlot::Head));
+        m.insert("快枪手的粗革手套", (RelicSetName::MusketeerofWildWheat, RelicSlot::Hands));
+        m.insert("快枪手的猎风披肩", (RelicSetName::MusketeerofWildWheat, RelicSlot::Body));
+        m.insert("快枪手的铆钉马靴", (RelicSetName::MusketeerofWildWheat, RelicSlot::Feet));
+        // 净庭教宗的圣骑士 - Version 1.0
+        m.insert("圣骑的宽恕盔面", (RelicSetName::KnightofPurityPalace, RelicSlot::Head));
+        m.insert("圣骑的沉默誓环", (RelicSetName::KnightofPurityPalace, RelicSlot::Hands));
+        m.insert("圣骑的肃穆胸甲", (RelicSetName::KnightofPurityPalace, RelicSlot::Body));
+        m.insert("圣骑的秩序铁靴", (RelicSetName::KnightofPurityPalace, RelicSlot::Feet));
+        // 密林卧雪的猎人 - Version 1.0
+        m.insert("雪猎的荒神兜帽", (RelicSetName::HunterofGlacialForest, RelicSlot::Head));
+        m.insert("雪猎的巨蜥手套", (RelicSetName::HunterofGlacialForest, RelicSlot::Hands));
+        m.insert("雪猎的冰龙披风", (RelicSetName::HunterofGlacialForest, RelicSlot::Body));
+        m.insert("雪猎的鹿皮软靴", (RelicSetName::HunterofGlacialForest, RelicSlot::Feet));
+        // 街头出身的拳王 - Version 1.0
+        m.insert("拳王的冠军护头", (RelicSetName::ChampionofStreetwiseBoxing, RelicSlot::Head));
+        m.insert("拳王的重炮拳套", (RelicSetName::ChampionofStreetwiseBoxing, RelicSlot::Hands));
+        m.insert("拳王的贴身护胸", (RelicSetName::ChampionofStreetwiseBoxing, RelicSlot::Body));
+        m.insert("拳王的弧步战靴", (RelicSetName::ChampionofStreetwiseBoxing, RelicSlot::Feet));
+        // 戍卫风雪的铁卫 - Version 1.0
+        m.insert("铁卫的铸铁面盔", (RelicSetName::GuardofWutheringSnow, RelicSlot::Head));
+        m.insert("铁卫的银鳞手甲", (RelicSetName::GuardofWutheringSnow, RelicSlot::Hands));
+        m.insert("铁卫的旧制军服", (RelicSetName::GuardofWutheringSnow, RelicSlot::Body));
+        m.insert("铁卫的白银护胫", (RelicSetName::GuardofWutheringSnow, RelicSlot::Feet));
+        // 熔岩锻铸的火匠 - Version 1.0
+        m.insert("火匠的黑曜目镜", (RelicSetName::FiresmithofLavaForging, RelicSlot::Head));
+        m.insert("火匠的御火戒指", (RelicSetName::FiresmithofLavaForging, RelicSlot::Hands));
+        m.insert("火匠的阻燃围裙", (RelicSetName::FiresmithofLavaForging, RelicSlot::Body));
+        m.insert("火匠的合金义肢", (RelicSetName::FiresmithofLavaForging, RelicSlot::Feet));
+        // 繁星璀璨的天才 - Version 1.0
+        m.insert("天才的超距遥感", (RelicSetName::GeniusofBrilliantStars, RelicSlot::Head));
+        m.insert("天才的频变捕手", (RelicSetName::GeniusofBrilliantStars, RelicSlot::Hands));
+        m.insert("天才的元域深潜", (RelicSetName::GeniusofBrilliantStars, RelicSlot::Body));
+        m.insert("天才的引力漫步", (RelicSetName::GeniusofBrilliantStars, RelicSlot::Feet));
+        // 激奏雷电的乐队 - Version 1.0
+        m.insert("乐队的偏光墨镜", (RelicSetName::BandofSizzlingThunder, RelicSlot::Head));
+        m.insert("乐队的巡演手绳", (RelicSetName::BandofSizzlingThunder, RelicSlot::Hands));
+        m.insert("乐队的钉刺皮衣", (RelicSetName::BandofSizzlingThunder, RelicSlot::Body));
+        m.insert("乐队的铆钉短靴", (RelicSetName::BandofSizzlingThunder, RelicSlot::Feet));
+        // 晨昏交界的翔鹰 - Version 1.0
+        m.insert("翔鹰的长喙头盔", (RelicSetName::EagleofTwilightLine, RelicSlot::Head));
+        m.insert("翔鹰的鹰击指环", (RelicSetName::EagleofTwilightLine, RelicSlot::Hands));
+        m.insert("翔鹰的翼装束带", (RelicSetName::EagleofTwilightLine, RelicSlot::Body));
+        m.insert("翔鹰的绒羽绑带", (RelicSetName::EagleofTwilightLine, RelicSlot::Feet));
+        // 流星追迹的怪盗 - Version 1.0
+        m.insert("怪盗的千人假面", (RelicSetName::ThiefofShootingMeteor, RelicSlot::Head));
+        m.insert("怪盗的绘纹手套", (RelicSetName::ThiefofShootingMeteor, RelicSlot::Hands));
+        m.insert("怪盗的纤钢爪钩", (RelicSetName::ThiefofShootingMeteor, RelicSlot::Body));
+        m.insert("怪盗的流星快靴", (RelicSetName::ThiefofShootingMeteor, RelicSlot::Feet));
+        // 盗匪荒漠的废土客 - Version 1.0
+        m.insert("废土客的呼吸面罩", (RelicSetName::WastelanderofBanditryDesert, RelicSlot::Head));
+        m.insert("废土客的荒漠终端", (RelicSetName::WastelanderofBanditryDesert, RelicSlot::Hands));
+        m.insert("废土客的修士长袍", (RelicSetName::WastelanderofBanditryDesert, RelicSlot::Body));
+        m.insert("废土客的动力腿甲", (RelicSetName::WastelanderofBanditryDesert, RelicSlot::Feet));
+        // 宝命长存的莳者 - Version 1.2
+        m.insert("莳者的复明义眼", (RelicSetName::LongevousDisciple, RelicSlot::Head));
+        m.insert("莳者的机巧木手", (RelicSetName::LongevousDisciple, RelicSlot::Hands));
+        m.insert("莳者的承露羽衣", (RelicSetName::LongevousDisciple, RelicSlot::Body));
+        m.insert("莳者的天人丝履", (RelicSetName::LongevousDisciple, RelicSlot::Feet));
+        // 骇域漫游的信使 - Version 1.2
+        m.insert("信使的全息目镜", (RelicSetName::MessengerTraversingHackerspace, RelicSlot::Head));
+        m.insert("信使的百变义手", (RelicSetName::MessengerTraversingHackerspace, RelicSlot::Hands));
+        m.insert("信使的密信挎包", (RelicSetName::MessengerTraversingHackerspace, RelicSlot::Body));
+        m.insert("信使的酷跑板鞋", (RelicSetName::MessengerTraversingHackerspace, RelicSlot::Feet));
+        // 毁烬焚骨的大公 - Version 1.5
+        m.insert("大公的冥焰冠冕", (RelicSetName::TheAshblazingGrandDuke, RelicSlot::Head));
+        m.insert("大公的绒火指套", (RelicSetName::TheAshblazingGrandDuke, RelicSlot::Hands));
+        m.insert("大公的蒙恩长袍", (RelicSetName::TheAshblazingGrandDuke, RelicSlot::Body));
+        m.insert("大公的绅雅礼靴", (RelicSetName::TheAshblazingGrandDuke, RelicSlot::Feet));
+        // 幽锁深牢的系囚 - Version 1.5
+        m.insert("系囚的合啮拘笼", (RelicSetName::PrisonerinDeepConfinement, RelicSlot::Head));
+        m.insert("系囚的铅石梏铐", (RelicSetName::PrisonerinDeepConfinement, RelicSlot::Hands));
+        m.insert("系囚的幽闭缚束", (RelicSetName::PrisonerinDeepConfinement, RelicSlot::Body));
+        m.insert("系囚的绝足锁桎", (RelicSetName::PrisonerinDeepConfinement, RelicSlot::Feet));
+        // 死水深潜的先驱 - Version 2.0
+        m.insert("先驱的绝热围壳", (RelicSetName::PioneerDiverofDeadWaters, RelicSlot::Head));
+        m.insert("先驱的虚极罗盘", (RelicSetName::PioneerDiverofDeadWaters, RelicSlot::Hands));
+        m.insert("先驱的密合铅衣", (RelicSetName::PioneerDiverofDeadWaters, RelicSlot::Body));
+        m.insert("先驱的泊星桩锚", (RelicSetName::PioneerDiverofDeadWaters, RelicSlot::Feet));
+        // 机心戏梦的钟表匠 - Version 2.0
+        m.insert("钟表匠的极目透镜", (RelicSetName::WatchmakerMasterofDreamMachinations, RelicSlot::Head));
+        m.insert("钟表匠的交运腕表", (RelicSetName::WatchmakerMasterofDreamMachinations, RelicSlot::Hands));
+        m.insert("钟表匠的空幻礼服", (RelicSetName::WatchmakerMasterofDreamMachinations, RelicSlot::Body));
+        m.insert("钟表匠的隐梦革履", (RelicSetName::WatchmakerMasterofDreamMachinations, RelicSlot::Feet));
+        // 荡除蠹灾的铁骑 - Version 2.3
+        m.insert("铁骑的索敌战盔", (RelicSetName::IronCavalryAgainsttheScourge, RelicSlot::Head));
+        m.insert("铁骑的摧坚铁腕", (RelicSetName::IronCavalryAgainsttheScourge, RelicSlot::Hands));
+        m.insert("铁骑的银影装甲", (RelicSetName::IronCavalryAgainsttheScourge, RelicSlot::Body));
+        m.insert("铁骑的行空护胫", (RelicSetName::IronCavalryAgainsttheScourge, RelicSlot::Feet));
+        // 风举云飞的勇烈 - Version 2.3
+        m.insert("勇烈的玄枵面甲", (RelicSetName::TheWindSoaringValorous, RelicSlot::Head));
+        m.insert("勇烈的钩爪腕甲", (RelicSetName::TheWindSoaringValorous, RelicSlot::Hands));
+        m.insert("勇烈的飞翎瓷甲", (RelicSetName::TheWindSoaringValorous, RelicSlot::Body));
+        m.insert("勇烈的逐猎腿甲", (RelicSetName::TheWindSoaringValorous, RelicSlot::Feet));
+        // 太空封印站 - Version 1.0
+        m.insert("「黑塔」的空间站点", (RelicSetName::SpaceSealingStation, RelicSlot::PlanarSphere));
+        m.insert("「黑塔」的漫历轨迹", (RelicSetName::SpaceSealingStation, RelicSlot::LinkRope));
+        // 不老者的仙舟 - Version 1.0
+        m.insert("罗浮仙舟的天外楼船", (RelicSetName::FleetoftheAgeless, RelicSlot::PlanarSphere));
+        m.insert("罗浮仙舟的建木枝蔓", (RelicSetName::FleetoftheAgeless, RelicSlot::LinkRope));
+        // 泛银河商业公司 - Version 1.0
+        m.insert("公司的巨构总部", (RelicSetName::PanCosmicCommercialEnterprise, RelicSlot::PlanarSphere));
+        m.insert("公司的贸易航道", (RelicSetName::PanCosmicCommercialEnterprise, RelicSlot::LinkRope));
+        // 筑城者的贝洛伯格 - Version 1.0
+        m.insert("贝洛伯格的存护堡垒", (RelicSetName::BelobogoftheArchitects, RelicSlot::PlanarSphere));
+        m.insert("贝洛伯格的铁卫防线", (RelicSetName::BelobogoftheArchitects, RelicSlot::LinkRope));
+        // 星体差分机 - Version 1.0
+        m.insert("螺丝星的机械烈阳", (RelicSetName::CelestialDifferentiator, RelicSlot::PlanarSphere));
+        m.insert("螺丝星的环星孔带", (RelicSetName::CelestialDifferentiator, RelicSlot::LinkRope));
+        // 停止转动的萨尔索图 - Version 1.0
+        m.insert("萨尔索图的移动城市", (RelicSetName::InertSalsotto, RelicSlot::PlanarSphere));
+        m.insert("萨尔索图的晨昏界线", (RelicSetName::InertSalsotto, RelicSlot::LinkRope));
+        // 盗贼公国塔利亚 - Version 1.0
+        m.insert("塔利亚的钉壳小镇", (RelicSetName::TaliaKingdomofBanditry, RelicSlot::PlanarSphere));
+        m.insert("塔利亚的裸皮电线", (RelicSetName::TaliaKingdomofBanditry, RelicSlot::LinkRope));
+        // 生命的翁瓦克 - Version 1.0
+        m.insert("翁瓦克的诞生之岛", (RelicSetName::SprightlyVonwacq, RelicSlot::PlanarSphere));
+        m.insert("翁瓦克的环岛海岸", (RelicSetName::SprightlyVonwacq, RelicSlot::LinkRope));
+        // 繁星竞技场 - Version 1.2
+        m.insert("泰科铵的镭射球场", (RelicSetName::RutilantArena, RelicSlot::PlanarSphere));
+        m.insert("泰科铵的弧光赛道", (RelicSetName::RutilantArena, RelicSlot::LinkRope));
+        // 折断的龙骨 - Version 1.2
+        m.insert("伊须磨洲的残船鲸落", (RelicSetName::BrokenKeel, RelicSlot::PlanarSphere));
+        m.insert("伊须磨洲的坼裂缆索", (RelicSetName::BrokenKeel, RelicSlot::LinkRope));
+        // 苍穹战线格拉默 - Version 1.5
+        m.insert("格拉默的铁骑兵团", (RelicSetName::FirmamentFrontlineGlamoth, RelicSlot::PlanarSphere));
+        m.insert("格拉默的寂静坟碑", (RelicSetName::FirmamentFrontlineGlamoth, RelicSlot::LinkRope));
+        // 梦想之地匹诺康尼 - Version 1.5
+        m.insert("匹诺康尼的堂皇饭店", (RelicSetName::PenaconyLandoftheDreams, RelicSlot::PlanarSphere));
+        m.insert("匹诺康尼的逐梦轨道", (RelicSetName::PenaconyLandoftheDreams, RelicSlot::LinkRope));
+        // 奔狼的都蓝王朝 - Version 2.3
+        m.insert("都蓝的器兽缰辔", (RelicSetName::DuranDynastyofRunningWolves, RelicSlot::PlanarSphere));
+        m.insert("都蓝的穹窿金帐", (RelicSetName::DuranDynastyofRunningWolves, RelicSlot::LinkRope));
+        // 劫火莲灯铸炼宫 - Version 2.3
+        m.insert("铸炼宫的焰轮天绸", (RelicSetName::ForgeoftheKalpagniLantern, RelicSlot::PlanarSphere));
+        m.insert("铸炼宫的莲华灯芯", (RelicSetName::ForgeoftheKalpagniLantern, RelicSlot::LinkRope));
+        m
+    };
 }
 
 impl RelicSetName {
     pub fn from_zh_cn(s: &str) -> Option<RelicSetName> {
-        // let s = match get_real_relic_name_chs(s) {
-        //     Some(v) => v,
-        //     None => return None,
-        // };
-        // println!("name: {}", s);
-        match s {
-            "过客的逢春木簪" | "过客的游龙臂鞲" | "过客的残绣风衣" | "过客的冥途游履" => Some(RelicSetName::PasserbyofWanderingCloud),
-            "快枪手的野穗毡帽" | "快枪手的粗革手套" | "快枪手的猎风披肩" | "快枪手的铆钉马靴" => Some(RelicSetName::MusketeerofWildWheat),
-            "圣骑的宽恕盔面" | "圣骑的沉默誓环" | "圣骑的肃穆胸甲" | "圣骑的秩序铁靴" => Some(RelicSetName::KnightofPurityPalace),
-            "雪猎的荒神兜帽" | "雪猎的巨蜥手套" | "雪猎的冰龙披风" | "雪猎的鹿皮软靴" => Some(RelicSetName::HunterofGlacialForest),
-            "拳王的冠军护头" | "拳王的重炮拳套" | "拳王的贴身护胸" | "拳王的弧步战靴" => Some(RelicSetName::ChampionofStreetwiseBoxing),
-            "铁卫的铸铁面盔" | "铁卫的银鳞手甲" | "铁卫的旧制军服" | "铁卫的白银护胫" => Some(RelicSetName::GuardofWutheringSnow),
-            "火匠的黑耀目镜" | "火匠的御火戒指" | "火匠的阻燃围裙" | "火匠的合金义肢" => Some(RelicSetName::FiresmithofLavaForging),
-            "天才的超距遥感" | "天才的频变捕手" | "天才的元域深潜" | "天才的引力漫步" => Some(RelicSetName::GeniusofBrilliantStars),
-            "乐队的偏光墨镜" | "乐队的巡演手绳" | "乐队的钉刺皮衣" | "乐队的铆钉短靴" => Some(RelicSetName::BandofSizzlingThunder),
-            "翔鹰的长喙头盔" | "翔鹰的鹰击指环" | "翔鹰的翼装束带" | "翔鹰的绒羽绑带" => Some(RelicSetName::EagleofTwilightLine),
-            "怪盗的千人假面" | "怪盗的绘纹手套" | "怪盗的纤钢爪钩" | "怪盗的流星快靴" => Some(RelicSetName::ThiefofShootingMeteor),
-            "废土客的呼吸面罩" | "废土客的荒漠终端" | "废土客的修士长袍" | "废土客的动力腿甲" => Some(RelicSetName::WastelanderofBanditryDesert),
-            "「黑塔」的空间站点" | "「黑塔」的漫历轨迹" => Some(RelicSetName::SpaceSealingStation),
-            "罗浮仙舟的天外楼船" | "罗浮仙舟的建木枝蔓" => Some(RelicSetName::FleetoftheAgeless),
-            "公司的巨构总部" | "公司的贸易航道" => Some(RelicSetName::PanCosmicCommercialEnterprise),
-            "贝洛伯格的存护堡垒" | "贝洛伯格的铁卫防线" => Some(RelicSetName::BelobogoftheArchitects),
-            "螺丝星的机械烈阳" | "螺丝星的环星孔带" => Some(RelicSetName::CelestialDifferentiator),
-            "萨尔索图的移动城市" | "萨尔索图的晨昏界线" => Some(RelicSetName::InertSalsotto),
-            "塔利亚的钉壳小镇" | "塔利亚的裸皮电线" => Some(RelicSetName::TaliaKingdomofBanditry),
-            "翁瓦克的诞生之岛" | "翁瓦克的环岛海岸" => Some(RelicSetName::FleetoftheAgeless),
-            "泰科铵的镭射球场" | "泰科铵的弧光赛道" => Some(RelicSetName::RutilantArena),
-            "伊须磨洲的残船鲸落" | "伊须磨洲的坼裂缆索" => Some(RelicSetName::BrokenKeel),
-            "莳者的复明义眼" | "莳者的机巧木手" | "莳者的承露羽衣" | "莳者的天人丝履" => Some(RelicSetName::LongevousDisciple),
-            "信使的全息目镜" | "信使的百变义手" | "信使的密信挎包" | "信使的酷跑板鞋" => Some(RelicSetName::MessengerTraversingHackerspace),
-            "大公的冥焰冠冕" | "大公的绒火指套" | "大公的蒙恩长袍" | "大公的绅雅礼靴" => Some(RelicSetName::TheAshblazingGrandDuke),
-            "系囚的合啮拘笼" | "系囚的铅石梏铐" | "系囚的幽闭缚束" | "系囚的绝足锁桎" => Some(RelicSetName::PrisonerinDeepConfinement),
-            "格拉默的寂静坟碑" | "格拉默的铁骑兵团" => Some(RelicSetName::FirmamentFrontlineGlamoth),
-            "匹诺康尼的逐梦轨道" | "匹诺康尼的堂皇酒店" => Some(RelicSetName::PenaconyLandoftheDreams),
-            "先驱的绝热围壳" | "先驱的虚极罗盘" | "先驱的密合铅衣" | "先驱的泊星桩锚" => Some(RelicSetName::PioneerDiverofDeadWaters),
-            "钟表匠的极目透镜" | "钟表匠的交运腕表" | "钟表匠的空幻礼服" | "钟表匠的隐梦革履" => Some(RelicSetName::WatchmakerMasterofDreamMachinations),
-            _ => None,
-        }
+        RELIC_INFO.get(s).map(|&(relic_set_name, _)| relic_set_name)
     }
 }
 
 impl RelicSlot {
     pub fn from_zh_cn(s: &str) -> Option<RelicSlot> {
-        // let s = match get_real_relic_name_chs(s) {
-        //     Some(v) => v,
-        //     None => return None,
-        // };
-        match s {
-            "过客的逢春木簪" | "快枪手的野穗毡帽" | "圣骑的宽恕盔面" | "雪猎的荒神兜帽" | "拳王的冠军护头" | "铁卫的铸铁面盔" | "火匠的黑耀目镜" | "天才的超距遥感" | "乐队的偏光墨镜" | "翔鹰的长喙头盔" | "怪盗的千人假面" | "废土客的呼吸面罩" | "莳者的复明义眼" | "信使的全息目镜" | "大公的冥焰冠冕" | "系囚的合啮拘笼" | "先驱的绝热围壳" | "钟表匠的极目透镜" => Some(RelicSlot::Head),
-            "过客的游龙臂鞲" | "快枪手的粗革手套" | "圣骑的沉默誓环" | "雪猎的巨蜥手套" | "拳王的重炮拳套" | "铁卫的银鳞手甲" | "火匠的御火戒指" | "天才的频变捕手" | "乐队的巡演手绳" | "翔鹰的鹰击指环" | "怪盗的绘纹手套" | "废土客的荒漠终端" | "莳者的机巧木手" | "信使的百变义手" | "大公的绒火指套" | "系囚的铅石梏铐" | "先驱的虚极罗盘" | "钟表匠的交运腕表" => Some(RelicSlot::Hands),
-            "过客的残绣风衣" | "快枪手的猎风披肩" | "圣骑的肃穆胸甲" | "雪猎的冰龙披风" | "拳王的贴身护胸" | "铁卫的旧制军服" | "火匠的阻燃围裙" | "天才的元域深潜" | "乐队的钉刺皮衣" | "翔鹰的翼装束带" | "怪盗的纤钢爪钩" | "废土客的修士长袍" | "莳者的承露羽衣" | "信使的密信挎包" | "大公的蒙恩长袍" | "系囚的幽闭缚束" | "先驱的密合铅衣" | "钟表匠的空幻礼服" => Some(RelicSlot::Body),
-            "过客的冥途游履" | "快枪手的铆钉马靴" | "圣骑的秩序铁靴" | "雪猎的鹿皮软靴" | "拳王的弧步战靴" | "铁卫的白银护胫" | "火匠的合金义肢" | "天才的引力漫步" | "乐队的铆钉短靴" | "翔鹰的绒羽绑带" | "怪盗的流星快靴" | "废土客的动力腿甲" | "莳者的天人丝履" | "信使的酷跑板鞋" | "大公的绅雅礼靴" | "系囚的绝足锁桎" | "先驱的泊星桩锚" | "钟表匠的隐梦革履" => Some(RelicSlot::Feet),
-            "「黑塔」的空间站点" | "罗浮仙舟的天外楼船" | "公司的巨构总部" | "贝洛伯格的存护堡垒" | "螺丝星的机械烈阳" | "萨尔索图的移动城市" | "塔利亚的钉壳小镇" | "翁瓦克的诞生之岛" | "泰科铵的镭射球场" | "伊须磨洲的残船鲸落" | "格拉默的铁骑兵团" | "匹诺康尼的堂皇酒店" => Some(RelicSlot::PlanarSphere),
-            "「黑塔」的漫历轨迹" | "罗浮仙舟的建木枝蔓" | "公司的贸易航道" | "贝洛伯格的铁卫防线" | "螺丝星的环星孔带" | "萨尔索图的晨昏界线" | "塔利亚的裸皮电线" | "翁瓦克的环岛海岸" | "泰科铵的弧光赛道" | "伊须磨洲的坼裂缆索" | "格拉默的寂静坟碑" | "匹诺康尼的逐梦轨道" => Some(RelicSlot::LinkRope),
-            _ => None,
-        }
+        RELIC_INFO.get(s).map(|&(_, relic_slot)| relic_slot)
     }
 }
-

@@ -2077,6 +2077,7 @@ dependencies = [
  "enigo",
  "env_logger",
  "image",
+ "lazy_static",
  "log",
  "open",
  "os_info",

@@ -25,6 +25,7 @@ anyhow = "*"
 dxgcap = "*"
 tungstenite = "0.17.3"
 open = "3.2.0"
+lazy_static = "1.4.0"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = [
