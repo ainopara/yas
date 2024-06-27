@@ -35,7 +35,9 @@ fn main() {
 
     let test = true;
     if test {
+        #[cfg(windows)]
         let _ = test_mark_genshin();
+        #[cfg(windows)]
         let _ = test_mark_starrail();
         // return
     }
@@ -204,6 +206,7 @@ fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
     Ok(info)
 }
 
+#[cfg(windows)]
 fn test_mark_genshin() -> Result<()> {
     let mut img = RawCaptureImage::load("test_genshin.png")?;
     let rect = PixelRect { left: 0, top: 0, width: img.w as i32, height: img.h as i32 };
@@ -235,6 +238,7 @@ fn test_mark_genshin() -> Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
 fn test_mark_starrail() -> Result<()> {
     let mut img = RawCaptureImage::load("test_starrail.png")?;
     let rect = PixelRect { left: 0, top: 0, width: img.w as i32, height: img.h as i32 };
