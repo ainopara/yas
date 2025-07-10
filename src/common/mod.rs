@@ -28,12 +28,12 @@ impl PixelRect {
         self.width = (self.width as f64 * ratio).round() as i32;
         self.height = (self.height as f64 * ratio).round() as i32;
     }
-    pub fn shifted(rect: &PixelRect, shift_x: i32, shift_y: i32) -> PixelRect {
+    pub fn shifted(&self, shift_x: i32, shift_y: i32) -> PixelRect {
         PixelRect {
-            left: rect.left + shift_x,
-            top: rect.top + shift_y,
-            width: rect.width,
-            height: rect.height,
+            left: self.left + shift_x,
+            top: self.top + shift_y,
+            width: self.width,
+            height: self.height,
         }
     }
     pub fn to_bound(&self) -> PixelRectBound {

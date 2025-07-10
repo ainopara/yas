@@ -133,11 +133,12 @@ impl ArtifactSetKey {
             }
             ArtifactSetKey::FragmentOfHarmonicWhimsy => "TODO",
             ArtifactSetKey::UnfinishedReverie => "TODO",
-            
+
             // Not supported by Mingyulab
             ArtifactSetKey::Adventurer => unreachable!(),
             ArtifactSetKey::LuckyDog => unreachable!(),
             ArtifactSetKey::TravelingDoctor => unreachable!(),
+            _ => "TODO"
         }
     }
 }

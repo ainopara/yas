@@ -208,6 +208,7 @@ fn get_info(matches: &ArgMatches) -> Result<ScanInfo> {
 
 #[cfg(windows)]
 fn test_mark_genshin() -> Result<()> {
+    println!("Marking test_genshin.png");
     let mut img = RawCaptureImage::load("test_genshin.png")?;
     let rect = PixelRect { left: 0, top: 0, width: img.w as i32, height: img.h as i32 };
     let info = ScanInfo::from_rect(&rect, GameType::Genshin).unwrap();
@@ -240,6 +241,7 @@ fn test_mark_genshin() -> Result<()> {
 
 #[cfg(windows)]
 fn test_mark_starrail() -> Result<()> {
+    println!("Marking test_starrail.png");
     let mut img = RawCaptureImage::load("test_starrail.png")?;
     let rect = PixelRect { left: 0, top: 0, width: img.w as i32, height: img.h as i32 };
     let info = ScanInfo::from_rect(&rect, GameType::Starrail).unwrap();

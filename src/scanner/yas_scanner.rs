@@ -664,6 +664,11 @@ impl YasScanner {
     }
 
     pub fn mark(&mut self, shot: &mut RawCaptureImage) -> Result<()> {
+        let color_at_lock_pos = shot.get_color(self.info.lock_x, self.info.lock_y).unwrap();
+        println!("Color R: {}, G: {}, B: {}", color_at_lock_pos.0, color_at_lock_pos.1, color_at_lock_pos.2);
+        let shift_y = if color_at_lock_pos.dis_2(&Color(220,192,255)) < 10 { 32 } else { 0 };
+        println!("Color Distance: {} ShiftY:{}", color_at_lock_pos.dis_2(&Color(220,192,255)), shift_y);
+        
         let a = |rect: &PixelRect| PixelRect {
             left: rect.left + self.info.panel_position.left,
             top: rect.top + self.info.panel_position.top,
@@ -676,21 +681,24 @@ impl YasScanner {
         shot.mark(&a(&self.info.title_position), &mark_color, alpha)?;
         shot.mark(&a(&self.info.main_stat_name_position), &mark_color, alpha)?;
         shot.mark(&a(&self.info.main_stat_value_position), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat1_position), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat2_position), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat3_position), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat4_position), &mark_color, alpha)?;
 
-        shot.mark(&a(&self.info.sub_stat1_name_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat1_value_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat2_name_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat2_value_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat3_name_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat3_value_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat4_name_pos), &mark_color, alpha)?;
-        shot.mark(&a(&self.info.sub_stat4_value_pos), &mark_color, alpha)?;
+        
+        
+        shot.mark(&a(&self.info.sub_stat1_position.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat2_position.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat3_position.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat4_position.shifted(0, shift_y)), &mark_color, alpha)?;
 
-        shot.mark(&a(&self.info.level_position), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat1_name_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat1_value_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat2_name_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat2_value_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat3_name_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat3_value_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat4_name_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+        shot.mark(&a(&self.info.sub_stat4_value_pos.shifted(0, shift_y)), &mark_color, alpha)?;
+
+        shot.mark(&a(&self.info.level_position.shifted(0, shift_y)), &mark_color, alpha)?;
         shot.mark(&a(&self.info.equip_position), &mark_color, alpha)?;
         shot.mark(&self.info.art_count_position.to_rect(), &mark_color, alpha)?;
         // shot.set_color(self.info.menu_x, self.info.menu_y, &mark_color)?;
@@ -730,7 +738,7 @@ impl YasScanner {
                 top: (self.info.lock_y - 5) as i32,
                 width: 10,
                 height: 10,
-            },
+            }.shifted(0, shift_y),
             &Color(0, 255, 0), // green
             1.0
         )?;
@@ -746,9 +754,9 @@ impl YasScanner {
         )?;
         shot.mark(
             &PixelRect {
-                left: self.info.ruler_left as i32,
+                left: self.info.ruler_left as i32 - 5,
                 top: self.info.ruler_top as i32,
-                width: 1,
+                width: 10,
                 height: self.info.ruler_height as i32,
             },
             &mark_color,
@@ -885,12 +893,20 @@ impl YasScanner {
                 let str_main_stat_value =
                     model_inference(&info.main_stat_value_position, "main_stat_value", cnt)?;
 
-                let str_sub_stat_1 = model_inference(&info.sub_stat1_position, "sub_stat_1", cnt)?;
-                let str_sub_stat_2 = model_inference(&info.sub_stat2_position, "sub_stat_2", cnt)?;
-                let str_sub_stat_3 = model_inference(&info.sub_stat3_position, "sub_stat_3", cnt)?;
-                let str_sub_stat_4 = model_inference(&info.sub_stat4_position, "sub_stat_4", cnt)?;
+                let color_at_lock_pos = capture.get_color(
+                    info.lock_x - info.panel_position.left as u32, 
+                    info.lock_y - info.panel_position.top as u32
+                ).unwrap();
+                // println!("{} -> Color R: {}, G: {}, B: {}", cnt, color_at_lock_pos.0, color_at_lock_pos.1, color_at_lock_pos.2);
+                let shift_y = if color_at_lock_pos.dis_2(&Color(220,192,255)) < 10 { 32 } else { 0 };
+                // println!("{} -> Color Distance: {} ShiftY: {}", cnt, color_at_lock_pos.dis_2(&Color(220,192,255)), shift_y);
 
-                let str_level = model_inference(&info.level_position, "level", cnt)?;
+                let str_sub_stat_1 = model_inference(&info.sub_stat1_position.shifted(0, shift_y), "sub_stat_1", cnt)?;
+                let str_sub_stat_2 = model_inference(&info.sub_stat2_position.shifted(0, shift_y), "sub_stat_2", cnt)?;
+                let str_sub_stat_3 = model_inference(&info.sub_stat3_position.shifted(0, shift_y), "sub_stat_3", cnt)?;
+                let str_sub_stat_4 = model_inference(&info.sub_stat4_position.shifted(0, shift_y), "sub_stat_4", cnt)?;
+
+                let str_level = model_inference(&info.level_position.shifted(0, shift_y), "level", cnt)?;
                 let str_equip = model_inference(&info.equip_position, "equip", cnt)?;
 
                 cnt += 1;

@@ -186,22 +186,22 @@ pub const WINDOW_16_9: WindowInfo = WindowInfo {
     art_col: 8,
 
     left_margin: 98.0,
-    top_margin: 100.0,
+    top_margin: 100.0 + 48.5,
 
     flag_x: 271.1,
-    flag_y: 89.8,
+    flag_y: 89.8 + 48.5,
 
     star_x: 379.4,
     star_y: 23.9,
 
-    lock_x: 1450.0,
+    lock_x: 1450.0 - 40.0,
     lock_y: 357.0,
 
     art_lock_x: 12.0,
     art_lock_y: 14.0,
 
     ruler_left: 272.0,
-    ruler_top: 102.0,
+    ruler_top: 102.0 + 48.5,
     ruler_height: 123.0,
 
     menu_x: 540.0,
