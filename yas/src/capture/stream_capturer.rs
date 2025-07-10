@@ -32,20 +32,20 @@ impl StreamingCapturer where {
         let is_cancelled = self.is_cancelled.clone();
 
         let handle = thread::spawn(move || -> Result<()> {
-            let mut it = 0;
+            let mut _it = 0;
             loop {
                 if self.is_cancelled.load(atomic::Ordering::Relaxed) {
                     break;
                 }
 
-                // println!("capture image {}", it);
+                // println!("capture image {}", _it);
 
                 let image = self.capturer.capture_rect(self.region);
                 if let Ok(im) = image {
                     tx.send(transform(im))?
                 }
 
-                it += 1;
+                _it += 1;
             }
 
             Ok(())

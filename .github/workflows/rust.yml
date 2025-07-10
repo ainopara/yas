@@ -52,7 +52,7 @@ jobs:
           }
 
       - name: Build (Release)
-        run: cargo build --release
+        run: cargo build --release --bin yas_artifact
 
       - name: Rename Outputs
         run: |

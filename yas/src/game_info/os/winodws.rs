@@ -42,7 +42,7 @@ fn get_window(window_names: &[&str]) -> Result<(HWND, bool)> {
     }
 
     println!("找到多个符合名称的窗口，请手动选择窗口：");
-    for (i, (hwnd, title)) in viable_handles.iter().enumerate() {
+    for (i, (_hwnd, title)) in viable_handles.iter().enumerate() {
         println!("{}: {}", i, title);
     }
     let mut index = String::new();
