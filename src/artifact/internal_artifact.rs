@@ -565,8 +565,8 @@ impl ArtifactSetKey {
             "失冕的宝冠" | "褪光的翠尾" | "暗结的明花" | "举业的识刻" | "筹谋的共樽" => Some(ArtifactSetKey::UnfinishedReverie),
             "魔战士的羽面" | "巡山客的信标" | "驯兽师的护符" | "秘术家的金盘" | "游学者的爪杯" => Some(ArtifactSetKey::ScrollOfTheHeroOfCinderCity),
             "诸圣的礼冠" | "灵髓的根脉" | "异种的期许" | "夜域的迷思" | "纷争的前宴" => Some(ArtifactSetKey::ObsidianCodex),
-            "深廊的遂失之冕" | "深廊的漫远之约" | "深廊的回奏之歌" | "深廊的湮落之刻" | "深廊的饫赐之宴" => Some(ArtifactSetKey::LongNightsOath),
-            "被浸染的缨盔" | "夜鸣莺的尾羽" | "执灯人的誓词" | "不死者的哀铃" | "未吹响的号角" => Some(ArtifactSetKey::FinaleOfTheDeepGalleries),
+            "深廊的遂失之冕" | "深廊的漫远之约" | "深廊的回奏之歌" | "深廊的湮落之刻" | "深廊的饫赐之宴" => Some(ArtifactSetKey::FinaleOfTheDeepGalleries),
+            "被浸染的缨盔" | "夜鸣莺的尾羽" | "执灯人的誓词" | "不死者的哀铃" | "未吹响的号角" => Some(ArtifactSetKey::LongNightsOath),
             _ => None,
         }
     }
