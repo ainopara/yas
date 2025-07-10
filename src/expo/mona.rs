@@ -177,7 +177,7 @@ impl CharacterKey {
             CharacterKey::Chevreuse => "夏沃蕾",
             CharacterKey::Navia => "娜维娅",
             CharacterKey::Gaming => "嘉明",
-            CharacterKey::Liuyun => "闲云",
+            CharacterKey::Xianyun => "闲云",
             CharacterKey::Chiori => "千织",
             CharacterKey::Arlecchino => "阿蕾奇诺",
             CharacterKey::Clorinde => "克洛琳德",

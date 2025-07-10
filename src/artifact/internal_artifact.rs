@@ -93,90 +93,107 @@ pub enum ArtifactSetKey {
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq, Display)]
 pub enum CharacterKey {
-    KamisatoAyaka,
-    Jean,
-    Traveler,
-    Lisa,
-    Barbara,
-    Kaeya,
-    Diluc,
-    Razor,
-    Amber,
-    Venti,
-    Xiangling,
-    Beidou,
-    Xingqiu,
-    Xiao,
-    Ningguang,
-    Klee,
-    Zhongli,
-    Fischl,
-    Bennett,
-    Tartaglia,
-    Noelle,
-    Qiqi,
-    Chongyun,
-    Ganyu,
-    Albedo,
-    Diona,
-    Mona,
-    Keqing,
-    Sucrose,
-    Xinyan,
-    Rosaria,
-    HuTao,
-    KaedeharaKazuha,
-    Yanfei,
-    Yoimiya,
-    Thoma,
-    Eula,
-    RaidenShogun,
-    Sayu,
-    SangonomiyaKokomi,
-    Gorou,
-    KujouSara,
-    AratakiItto,
-    YaeMiko,
-    ShikanoinHeizou,
-    Yelan,
-    Kirara,
-    Aloy,
-    Shenhe,
-    YunJin,
-    KukiShinobu,
-    KamisatoAyato,
-    Collei,
-    Dori,
-    Tighnari,
-    Nilou,
-    Cyno,
-    Candace,
-    Nahida,
-    Layla,
-    Wanderer,
-    Faruzan,
-    Yaoyao,
-    Alhaitham,
-    Dehya,
-    Mika,
-    Kaveh,
-    Baizhu,
-    Lynette,
-    Lyney,
-    Freminet,
-    Wriothesley,
-    Neuvillette,
-    Charlotte,
-    Furina,
-    Chevreuse,
-    Navia,
-    Gaming,
-    Liuyun,
-    Chiori,
-    Arlecchino,
-    Clorinde,
-    Kachina,
-    Xilonen
+    KamisatoAyaka,      // 神里绫华
+    Jean,               // 琴
+    Traveler,           // 旅行者
+    Lisa,               // 丽莎
+    Barbara,            // 芭芭拉
+    Kaeya,              // 凯亚
+    Diluc,              // 迪卢克
+    Razor,              // 雷泽
+    Amber,              // 安柏
+    Venti,              // 温迪
+    Xiangling,          // 香菱
+    Beidou,             // 北斗
+    Xingqiu,            // 行秋
+    Xiao,               // 魈
+    Ningguang,          // 凝光
+    Klee,               // 可莉
+    Zhongli,            // 钟离
+    Fischl,             // 菲谢尔
+    Bennett,            // 班尼特
+    Tartaglia,          // 达达利亚
+    Noelle,             // 诺艾尔
+    Qiqi,               // 七七
+    Chongyun,           // 重云
+    Ganyu,              // 甘雨
+    Albedo,             // 阿贝多
+    Diona,              // 迪奥娜
+    Mona,               // 莫娜
+    Keqing,             // 刻晴
+    Sucrose,            // 砂糖
+    Xinyan,             // 辛焱
+    Rosaria,            // 罗莎莉亚
+    HuTao,              // 胡桃
+    KaedeharaKazuha,    // 枫原万叶
+    Yanfei,             // 烟绯
+    Yoimiya,            // 宵宫
+    Thoma,              // 托马
+    Eula,               // 优菈
+    RaidenShogun,       // 雷电将军
+    Sayu,               // 早柚
+    SangonomiyaKokomi,  // 珊瑚宫心海
+    Gorou,              // 五郎
+    KujouSara,          // 九条裟罗
+    AratakiItto,        // 荒泷一斗
+    YaeMiko,            // 八重神子
+    ShikanoinHeizou,    // 鹿野院平藏
+    Yelan,              // 夜兰
+    Kirara,             // 绮良良
+    Aloy,               // 埃洛伊
+    Shenhe,             // 申鹤
+    YunJin,             // 云堇
+    KukiShinobu,        // 久岐忍
+    KamisatoAyato,      // 神里绫人
+    Collei,             // 柯莱
+    Dori,               // 多莉
+    Tighnari,           // 提纳里
+    Nilou,              // 妮露
+    Cyno,               // 赛诺
+    Candace,            // 坎蒂丝
+    Nahida,             // 纳西妲
+    Layla,              // 莱依拉
+    Wanderer,           // 流浪者
+    Faruzan,            // 珐露珊
+    Yaoyao,             // 瑶瑶
+    Alhaitham,          // 艾尔海森
+    Dehya,              // 迪希雅
+    Mika,               // 米卡
+    Kaveh,              // 卡维
+    Baizhu,             // 白术
+    Lynette,            // 琳妮特
+    Lyney,              // 林尼
+    Freminet,           // 菲米尼
+    Wriothesley,        // 莱欧斯利
+    Neuvillette,        // 那维莱特
+    Charlotte,          // 夏洛蒂
+    Furina,             // 芙宁娜
+    Chevreuse,          // 夏沃蕾
+    Navia,              // 娜维娅
+    Gaming,             // 嘉明
+    Xianyun,            // 闲云
+    Chiori,             // 千织
+    Arlecchino,         // 阿蕾奇诺
+    Sethos,             // 赛索斯
+    Clorinde,           // 克洛琳德
+    Sigewinne,          // 希格雯
+    Emilie,             // 艾梅莉埃
+    Kachina,            // 卡齐娜
+    Mualani,            // 玛拉妮
+    Kinich,             // 基尼奇
+    Xilonen,            // 希诺宁
+    Ororon,             // 欧洛伦
+    Chasca,             // 恰斯卡
+    Citlali,            // 茜特菈莉
+    Mavuika,            // 玛薇卡
+    LanYan,             // 蓝砚
+    YumemizukiMizuki,   // 梦见月瑞希
+    Iansan,             // 伊安珊
+    Varesa,             // 瓦雷莎
+    Ifa,                // 伊法
+    Escoffier,          // 爱可菲
+    Dahlia,             // 塔利雅
+    Skirk,              // 丝柯克
 }
 
 #[derive(Debug, Clone)]
@@ -881,17 +898,27 @@ impl CharacterKey {
             "夏沃蕾" => Some(CharacterKey::Chevreuse),
             "娜维娅" => Some(CharacterKey::Navia),
             "嘉明" => Some(CharacterKey::Gaming),
-            "闲云" => Some(CharacterKey::Liuyun),
+            "闲云" => Some(CharacterKey::Xianyun),
             "千织" => Some(CharacterKey::Chiori),
             "阿蕾奇诺" => Some(CharacterKey::Arlecchino),
             "克洛琳德" => Some(CharacterKey::Clorinde),
-            "希格雯" => None,
-            "赛索斯" => None,
-            "艾梅莉埃" => None,
-            "基尼奇" => None,
             "卡齐娜" => Some(CharacterKey::Kachina),
-            "玛拉妮" => None,
             "希诺宁" => Some(CharacterKey::Xilonen),
+            "恰斯卡" => Some(CharacterKey::Chasca),
+            "茜特菈莉" => Some(CharacterKey::Citlali),
+            "艾梅莉埃" => Some(CharacterKey::Emilie),
+            "爱可菲" => Some(CharacterKey::Escoffier),
+            "伊安珊" => Some(CharacterKey::Iansan),
+            "伊法" => Some(CharacterKey::Ifa),
+            "基尼奇" => Some(CharacterKey::Kinich),
+            "蓝砚" => Some(CharacterKey::LanYan),
+            "玛薇卡" => Some(CharacterKey::Mavuika),
+            "玛拉妮" => Some(CharacterKey::Mualani),
+            "欧洛伦" => Some(CharacterKey::Ororon),
+            "赛索斯" => Some(CharacterKey::Sethos),
+            "希格雯" => Some(CharacterKey::Sigewinne),
+            "瓦雷莎" => Some(CharacterKey::Varesa),
+            "梦见月瑞希" => Some(CharacterKey::YumemizukiMizuki),
             _ => None,
         };
 
