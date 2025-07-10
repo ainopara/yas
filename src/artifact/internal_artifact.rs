@@ -171,7 +171,12 @@ pub enum CharacterKey {
     Chevreuse,
     Navia,
     Gaming,
-    Liuyun
+    Liuyun,
+    Chiori,
+    Arlecchino,
+    Clorinde,
+    Kachina,
+    Xilonen
 }
 
 #[derive(Debug, Clone)]
@@ -877,6 +882,16 @@ impl CharacterKey {
             "娜维娅" => Some(CharacterKey::Navia),
             "嘉明" => Some(CharacterKey::Gaming),
             "闲云" => Some(CharacterKey::Liuyun),
+            "千织" => Some(CharacterKey::Chiori),
+            "阿蕾奇诺" => Some(CharacterKey::Arlecchino),
+            "克洛琳德" => Some(CharacterKey::Clorinde),
+            "希格雯" => None,
+            "赛索斯" => None,
+            "艾梅莉埃" => None,
+            "基尼奇" => None,
+            "卡齐娜" => Some(CharacterKey::Kachina),
+            "玛拉妮" => None,
+            "希诺宁" => Some(CharacterKey::Xilonen),
             _ => None,
         };
 
