@@ -89,6 +89,10 @@ pub enum ArtifactSetKey {
     NighttimeWhispersInTheEchoingWoods,
     FragmentOfHarmonicWhimsy,
     UnfinishedReverie,
+    ScrollOfTheHeroOfCinderCity,
+    ObsidianCodex,
+    LongNightsOath,
+    FinaleOfTheDeepGalleries,
 }
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq, Display)]
@@ -559,6 +563,10 @@ impl ArtifactSetKey {
             }
             "异想零落的圆舞" | "古海玄幽的夜想" | "谐律交响的前奏" | "命途轮转的谐谑" | "灵露倾洒的狂诗" => Some(ArtifactSetKey::FragmentOfHarmonicWhimsy),
             "失冕的宝冠" | "褪光的翠尾" | "暗结的明花" | "举业的识刻" | "筹谋的共樽" => Some(ArtifactSetKey::UnfinishedReverie),
+            "魔战士的羽面" | "巡山客的信标" | "驯兽师的护符" | "秘术家的金盘" | "游学者的爪杯" => Some(ArtifactSetName::ScrollOfTheHeroOfCinderCity),
+            "诸圣的礼冠" | "灵髓的根脉" | "异种的期许" | "夜域的迷思" | "纷争的前宴" => Some(ArtifactSetName::ObsidianCodex),
+            "深廊的遂失之冕" | "深廊的漫远之约" | "深廊的回奏之歌" | "深廊的湮落之刻" | "深廊的饫赐之宴" => Some(ArtifactSetName::LongNightsOath),
+            "被浸染的缨盔" | "夜鸣莺的尾羽" | "执灯人的誓词" | "不死者的哀铃" | "未吹响的号角" => Some(ArtifactSetName::FinaleOfTheDeepGalleries),
             _ => None,
         }
     }
@@ -812,6 +820,26 @@ impl ArtifactSlotKey {
             "暗结的明花" => Some(ArtifactSlotKey::Flower),
             "举业的识刻" => Some(ArtifactSlotKey::Sands),
             "筹谋的共樽" => Some(ArtifactSlotKey::Goblet),
+            "魔战士的羽面" => Some(ArtifactSlot::Head),
+            "巡山客的信标" => Some(ArtifactSlot::Feather),
+            "驯兽师的护符" => Some(ArtifactSlot::Flower),
+            "秘术家的金盘" => Some(ArtifactSlot::Sand),
+            "游学者的爪杯" => Some(ArtifactSlot::Goblet),
+            "诸圣的礼冠" => Some(ArtifactSlot::Head),
+            "灵髓的根脉" => Some(ArtifactSlot::Feather),
+            "异种的期许" => Some(ArtifactSlot::Flower),
+            "夜域的迷思" => Some(ArtifactSlot::Sand),
+            "纷争的前宴" => Some(ArtifactSlot::Goblet),
+            "被浸染的缨盔" => Some(ArtifactSlot::Head),
+            "夜鸣莺的尾羽" => Some(ArtifactSlot::Feather),
+            "执灯人的誓词" => Some(ArtifactSlot::Flower),
+            "不死者的哀铃" => Some(ArtifactSlot::Sand),
+            "未吹响的号角" => Some(ArtifactSlot::Goblet),
+            "深廊的遂失之冕" => Some(ArtifactSlot::Head),
+            "深廊的漫远之约" => Some(ArtifactSlot::Feather),
+            "深廊的回奏之歌" => Some(ArtifactSlot::Flower),
+            "深廊的湮落之刻" => Some(ArtifactSlot::Sand),
+            "深廊的饫赐之宴" => Some(ArtifactSlot::Goblet),
             _ => None,
         }
     }
