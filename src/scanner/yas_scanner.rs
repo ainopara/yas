@@ -823,7 +823,7 @@ impl YasScanner {
 
         let count = match self.get_art_count() {
             Ok(v) => v,
-            Err(_) => 1800,
+            Err(_) => 2100,
         };
 
         let total_row = (count + self.col - 1) / self.col;
@@ -849,9 +849,9 @@ impl YasScanner {
             let info = info_2;
 
             let mut cnt = 0;
-            if is_dump_mode {
-                fs::create_dir("dumps")?;
-            }
+            // if is_dump_mode {
+            //     fs::create_dir("dumps")?;
+            // }
 
             for i in rx {
                 let (capture, rarity, lock) = match i {
@@ -929,7 +929,7 @@ impl YasScanner {
                 };
                 debug!("{:?}", result);
                 // println!("{:?}", result);
-                let art = result.to_internal_artifact();
+                let art = result.to_internal_artifact(cnt);
                 if let Some(a) = art {
                     if hash.contains(&a) {
                         dup_count += 1;

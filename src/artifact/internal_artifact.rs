@@ -947,6 +947,8 @@ impl CharacterKey {
             "希格雯" => Some(CharacterKey::Sigewinne),
             "瓦雷莎" => Some(CharacterKey::Varesa),
             "梦见月瑞希" => Some(CharacterKey::YumemizukiMizuki),
+            "塔利雅" => Some(CharacterKey::Dahlia),
+            "丝柯克" => Some(CharacterKey::Skirk),
             _ => None,
         };
 

@@ -183,7 +183,7 @@ impl CharacterKey {
             CharacterKey::Clorinde => "克洛琳德",
             CharacterKey::Kachina => "卡齐娜",
             CharacterKey::Xilonen => "希诺宁",
-            _ => todo!(),
+            _ => "",
         };
         String::from(temp)
     }

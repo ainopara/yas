@@ -17,7 +17,7 @@ pub struct YasScanResult {
 }
 
 impl YasScanResult {
-    pub fn to_internal_artifact(&self) -> Option<InternalArtifact> {
+    pub fn to_internal_artifact(&self, cnt: i32) -> Option<InternalArtifact> {
         let set_key = ArtifactSetKey::from_zh_cn(&self.name)?;
         let slot_key = ArtifactSlotKey::from_zh_cn(&self.name)?;
         let rarity = self.rarity;
@@ -41,7 +41,12 @@ impl YasScanResult {
 
         let location = if self.location.contains("已装备") {
             let len = self.location.chars().count();
-            CharacterKey::from_zh_cn(&self.location.chars().take(len - 3).collect::<String>())
+            if let Some(key) = CharacterKey::from_zh_cn(&self.location.chars().take(len - 3).collect::<String>()) {
+                Some(key)
+            } else {
+                println!("Unknown character key for set {} {} {} {} {} {} {} {}", cnt, self.name, self.main_stat_name, self.sub_stat_1, self.sub_stat_2, self.sub_stat_3, self.sub_stat_4, self.location);
+                None
+            }
         } else {
             None
         };
